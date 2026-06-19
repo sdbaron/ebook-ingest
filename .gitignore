@@ -1,0 +1,15 @@
+node_modules/
+dist/
+logs/
+bereichen/
+reports/
+.DS_Store
+.vscode/
+/vision-*.json
+CHAT_SUMMARY.md
+*.tsbuildinfo
+**/**/name-corrections.json
+packages/batch-cli/tests/src/ocr-pages
+
+# Ignore local git worktrees created for isolated tasks
+.worktrees/
