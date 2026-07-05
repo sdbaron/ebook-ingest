@@ -1,16 +1,20 @@
 import { defaultConfig, EbookIngestConfig } from './config.js';
 import { UniversalExtractor } from './universal-extractor.js';
+import { ConceptMergeEngine } from './concept-merge-engine.js';
 import { WikiPipeline } from './pipeline.js';
 import { migrateCommand } from './migrate-vault.js';
+import path from 'node:path';
 
 function printUsage(): void {
   console.error('Usage:');
   console.error('  ebook-ingest <source> <source_name> [project] [--resume|-r] [--config <path>]');
   console.error('  ebook-ingest migrate [--vault <path>] [--dry-run]');
+  console.error('  ebook-ingest merge-concepts [--auto] [--dry-run]');
   console.error('');
   console.error('Commands:');
   console.error('  ingest (default)  Import a source into the vault');
   console.error('  migrate           Migrate v2 vault (Book-Model) to v3 (Source-Model)');
+  console.error('  merge-concepts    Find and merge duplicate concepts');
   console.error('');
   console.error('Ingest options:');
   console.error('  --resume, -r      Skip already-processed blocks');
@@ -19,6 +23,10 @@ function printUsage(): void {
   console.error('Migrate options:');
   console.error('  --vault <path>    Path to the Obsidian vault');
   console.error('  --dry-run         Show what would change without writing');
+  console.error('');
+  console.error('Merge options:');
+  console.error('  --auto            Auto-merge all candidates with score > 0.9');
+  console.error('  --dry-run         Show merge candidates without executing');
   console.error('');
   console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
 }
@@ -83,6 +91,61 @@ function parseMigrateArgs(argv: string[]): {
   return { vault, dryRun };
 }
 
+async function mergeConceptsCommand(argv: string[]): Promise<void> {
+  let auto = false;
+  let dryRun = false;
+
+  for (const arg of argv) {
+    if (arg === '--auto') auto = true;
+    if (arg === '--dry-run') dryRun = true;
+  }
+
+  const config = defaultConfig;
+  const conceptDir = path.resolve(config.vault, config.conceptsDir);
+  const conceptRegPath = path.resolve(config.vault, config.conceptRegistry);
+  const sourcesDir = path.resolve(config.vault, config.sourcesDir);
+
+  const engine = new ConceptMergeEngine(conceptDir, conceptRegPath, sourcesDir);
+
+  console.log('[MERGE] Finding concept merge candidates...');
+  const candidates = await engine.findCandidates();
+
+  if (candidates.length === 0) {
+    console.log('[MERGE] No merge candidates found.');
+    return;
+  }
+
+  console.log(`[MERGE] Found ${candidates.length} potential merge candidates:\n`);
+
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    console.log(`[${i + 1}] ${c.concepts[0]} ↔ ${c.concepts[1]} (score: ${c.score.toFixed(2)}, method: ${c.method})`);
+    console.log(`    → Keep: "${c.suggestedPrimary}"`);
+    console.log(`    → Alias: "${c.suggestedAlias}"\n`);
+  }
+
+  if (dryRun) {
+    console.log('[MERGE] Dry run — no changes made.');
+    return;
+  }
+
+  if (auto) {
+    const toMerge = candidates.filter(c => c.score > 0.9);
+    if (toMerge.length === 0) {
+      console.log('[MERGE] No candidates above 0.9 threshold for auto-merge.');
+      return;
+    }
+    console.log(`[MERGE] Auto-merging ${toMerge.length} candidates...`);
+    const results = await engine.merge(toMerge);
+    for (const r of results) {
+      console.log(`[MERGE] Merged "${r.merged.join(', ')}" → "${r.primary}"`);
+    }
+  } else {
+    console.log('[MERGE] Run with --auto to auto-merge candidates with score > 0.9');
+    console.log('[MERGE] Run with --dry-run to preview without changes');
+  }
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -94,6 +157,11 @@ async function main(): Promise<void> {
       ...(migrateArgs.vault ? { vault: migrateArgs.vault } : {}),
     };
     await migrateCommand(config, migrateArgs.dryRun);
+    return;
+  }
+
+  if (args[0] === 'merge-concepts') {
+    await mergeConceptsCommand(args.slice(1));
     return;
   }
 
