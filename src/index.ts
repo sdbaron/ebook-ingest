@@ -7,6 +7,8 @@ export { TextPreprocessor, PreprocessorOptions, PreprocessResult, PreprocessStat
 export { LLMAnalyzer, ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';
 export { ConceptNormalizer } from './concept-normalizer.js';
 export { ConceptMergeEngine, MergeCandidate, MergeResult, SimilarityChecker } from './concept-merge-engine.js';
+export { EmbeddingGenerator, EmbeddingResult } from './embedding-generator.js';
+export { VectorStore, VectorDocument, buildDocId } from './vector-store.js';
 export { RegistryManager } from './registry-manager.js';
 export { KnowledgeStore, SourceEntry, ConceptEntry as ConceptRegistryEntry } from './knowledge-store.js';
 export { ObsidianWriter } from './obsidian-writer.js';

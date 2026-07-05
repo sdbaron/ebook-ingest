@@ -7,9 +7,11 @@ import { ConceptNormalizer } from './concept-normalizer.js';
 import { RegistryManager } from './registry-manager.js';
 import { KnowledgeStore } from './knowledge-store.js';
 import { ObsidianWriter } from './obsidian-writer.js';
+import { EmbeddingGenerator } from './embedding-generator.js';
+import { VectorStore, buildDocId } from './vector-store.js';
 
 /**
- * Main pipeline: EPUB → LLM analysis → Obsidian vault.
+ * Main pipeline: Source → Preprocess → LLM analysis → Obsidian vault.
  */
 export class WikiPipeline {
   private config: EbookIngestConfig;
@@ -17,10 +19,14 @@ export class WikiPipeline {
   private knowledgeStore: KnowledgeStore;
   private llmAnalyzer: LLMAnalyzer;
   private extractor: UniversalExtractor;
+  private embeddingGenerator: EmbeddingGenerator;
+  private vectorStore: VectorStore;
 
   constructor(config: EbookIngestConfig) {
     this.config = config;
     this.llmAnalyzer = new LLMAnalyzer(config.model);
+    this.embeddingGenerator = new EmbeddingGenerator();
+    this.vectorStore = new VectorStore();
 
     const conceptRegPath = path.resolve(config.vault, config.conceptRegistry);
     const sourceRegPath = path.resolve(config.vault, config.sourceRegistry);
@@ -153,6 +159,64 @@ export class WikiPipeline {
 
     await this.writer.writeGlobalMoc();
 
+    // Generate and store embeddings (if ChromaDB is available)
+    await this.indexVectors(sourceName, blocks, extractionResult.format);
+
     console.log('[DONE]');
+  }
+
+  /**
+   * Generate embeddings and store them in ChromaDB.
+   */
+  private async indexVectors(
+    sourceName: string,
+    blocks: string[],
+    sourceFormat: 'epub' | 'pdf' | 'html' | 'url',
+  ): Promise<void> {
+    await this.vectorStore.connect();
+
+    if (!this.vectorStore.isConnected()) return;
+
+    console.log(`[VECTOR] Generating embeddings for ${sourceName}...`);
+
+    const embedResults = await this.embeddingGenerator.embed(
+      blocks,
+      blocks.map((_, i) => ({
+        sourceName,
+        blockIndex: i + 1,
+        sourceFormat,
+        vaultPath: `${sourceName}/${String(i + 1).padStart(2, '0')}.md`,
+      })),
+    );
+
+    if (embedResults.length > 0) {
+      await this.vectorStore.addDocuments(
+        embedResults.map(r => ({
+          id: buildDocId(sourceName, r.metadata.blockIndex),
+          text: r.text,
+          embedding: r.embedding,
+          metadata: {
+            sourceName: r.metadata.sourceName,
+            blockIndex: r.metadata.blockIndex,
+            sourceFormat: r.metadata.sourceFormat,
+            vaultPath: r.metadata.vaultPath || '',
+          },
+        })),
+      );
+    }
+  }
+
+  /**
+   * Get the vector store for external use (search, reindex).
+   */
+  getVectorStore(): VectorStore {
+    return this.vectorStore;
+  }
+
+  /**
+   * Get the embedding generator for external use.
+   */
+  getEmbeddingGenerator(): EmbeddingGenerator {
+    return this.embeddingGenerator;
   }
 }

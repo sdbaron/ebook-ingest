@@ -3,6 +3,8 @@ import { UniversalExtractor } from './universal-extractor.js';
 import { ConceptMergeEngine } from './concept-merge-engine.js';
 import { WikiPipeline } from './pipeline.js';
 import { migrateCommand } from './migrate-vault.js';
+import { VectorStore, buildDocId } from './vector-store.js';
+import { EmbeddingGenerator } from './embedding-generator.js';
 import path from 'node:path';
 
 function printUsage(): void {
@@ -10,19 +12,21 @@ function printUsage(): void {
   console.error('  ebook-ingest <source> <source_name> [project] [--resume|-r] [--config <path>]');
   console.error('  ebook-ingest migrate [--vault <path>] [--dry-run]');
   console.error('  ebook-ingest merge-concepts [--auto] [--dry-run]');
+  console.error('  ebook-ingest search <query> [--top-k <n>]');
+  console.error('  ebook-ingest reindex [--source <name>]');
   console.error('');
   console.error('Commands:');
   console.error('  ingest (default)  Import a source into the vault');
   console.error('  migrate           Migrate v2 vault (Book-Model) to v3 (Source-Model)');
   console.error('  merge-concepts    Find and merge duplicate concepts');
+  console.error('  search            Semantic search over indexed vault content');
+  console.error('  reindex           Regenerate embeddings for existing vault');
   console.error('');
-  console.error('Ingest options:');
-  console.error('  --resume, -r      Skip already-processed blocks');
-  console.error('  --config <path>   Path to JSON config file (overrides defaults)');
+  console.error('Search options:');
+  console.error('  --top-k <n>       Number of results (default: 5)');
   console.error('');
-  console.error('Migrate options:');
-  console.error('  --vault <path>    Path to the Obsidian vault');
-  console.error('  --dry-run         Show what would change without writing');
+  console.error('Reindex options:');
+  console.error('  --source <name>   Only reindex a specific source');
   console.error('');
   console.error('Merge options:');
   console.error('  --auto            Auto-merge all candidates with score > 0.9');
@@ -146,6 +150,80 @@ async function mergeConceptsCommand(argv: string[]): Promise<void> {
   }
 }
 
+async function searchCommand(argv: string[]): Promise<void> {
+  if (argv.length === 0 || argv[0] === '--help') {
+    console.error('Usage: ebook-ingest search <query> [--top-k <n>]');
+    process.exit(1);
+  }
+
+  const query = argv[0];
+  let topK = 5;
+
+  for (let i = 1; i < argv.length; i++) {
+    if (argv[i] === '--top-k' && i + 1 < argv.length) {
+      topK = parseInt(argv[++i], 10) || 5;
+    }
+  }
+
+  const config = defaultConfig;
+  const vectorStore = new VectorStore();
+  const embeddingGenerator = new EmbeddingGenerator();
+
+  await vectorStore.connect();
+
+  if (!vectorStore.isConnected()) {
+    console.error('[SEARCH] ChromaDB is not available. Start ChromaDB to use search.');
+    process.exit(1);
+  }
+
+  console.log(`[SEARCH] Query: "${query}" (top-${topK})`);
+
+  const queryEmbedding = await embeddingGenerator.embedQuery(query);
+  const results = await vectorStore.query(queryEmbedding, topK);
+
+  if (results.length === 0) {
+    console.log('[SEARCH] No results found.');
+    return;
+  }
+
+  console.log(`[SEARCH] Found ${results.length} results:\n`);
+
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    console.log(`[${i + 1}] ${r.metadata.sourceName} — Block ${r.metadata.blockIndex}`);
+    console.log(`    ${r.text.slice(0, 200).replace(/\n/g, ' ')}...`);
+    console.log('');
+  }
+}
+
+async function reindexCommand(argv: string[]): Promise<void> {
+  let sourceName: string | undefined;
+
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--source' && i + 1 < argv.length) {
+      sourceName = argv[++i];
+    }
+  }
+
+  const config = defaultConfig;
+  const vectorStore = new VectorStore();
+  await vectorStore.connect();
+
+  if (!vectorStore.isConnected()) {
+    console.error('[REINDEX] ChromaDB is not available.');
+    process.exit(1);
+  }
+
+  if (sourceName) {
+    console.log(`[REINDEX] Reindexing source: ${sourceName}`);
+    await vectorStore.deleteSource(sourceName);
+    // Re-indexing would require re-processing via the pipeline
+    console.log(`[REINDEX] Deleted vectors for "${sourceName}". Run ingest --resume to regenerate.`);
+  } else {
+    console.log('[REINDEX] Full reindex not yet implemented. Use --source <name> for per-source reindex.');
+  }
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -162,6 +240,16 @@ async function main(): Promise<void> {
 
   if (args[0] === 'merge-concepts') {
     await mergeConceptsCommand(args.slice(1));
+    return;
+  }
+
+  if (args[0] === 'search') {
+    await searchCommand(args.slice(1));
+    return;
+  }
+
+  if (args[0] === 'reindex') {
+    await reindexCommand(args.slice(1));
     return;
   }
 
