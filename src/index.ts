@@ -11,6 +11,7 @@ export { EmbeddingGenerator, EmbeddingResult } from './embedding-generator.js';
 export { VectorStore, VectorDocument, buildDocId } from './vector-store.js';
 export { ChatEngine, ChatMessage, ChatSession, ChatResponse, SourceCitation } from './chat-engine.js';
 export { PromptTemplate, promptTemplates } from './prompt-templates.js';
+export { MocGenerator, ConceptVector, ConceptCluster, ClusterResult } from './moc-generator.js';
 export { RegistryManager } from './registry-manager.js';
 export { KnowledgeStore, SourceEntry, ConceptEntry as ConceptRegistryEntry } from './knowledge-store.js';
 export { ObsidianWriter } from './obsidian-writer.js';

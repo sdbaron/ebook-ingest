@@ -7,6 +7,7 @@ import { VectorStore, buildDocId } from './vector-store.js';
 import { EmbeddingGenerator } from './embedding-generator.js';
 import { ChatEngine } from './chat-engine.js';
 import { promptTemplates } from './prompt-templates.js';
+import { MocGenerator } from './moc-generator.js';
 import path from 'node:path';
 
 function printUsage(): void {
@@ -18,6 +19,7 @@ function printUsage(): void {
   console.error('  ebook-ingest reindex [--source <name>]');
   console.error('  ebook-ingest ask <question> [--top-k <n>] [--style default|academic|concise] [--show-sources]');
   console.error('  ebook-ingest chat [--top-k <n>] [--style default|academic|concise]');
+  console.error('  ebook-ingest generate-mocs [--clusters <n>]');
   console.error('');
   console.error('Commands:');
   console.error('  ingest (default)  Import a source into the vault');
@@ -27,11 +29,15 @@ function printUsage(): void {
   console.error('  reindex           Regenerate embeddings for existing vault');
   console.error('  ask               Ask a question using RAG (single question)');
   console.error('  chat              Interactive RAG chat session');
+  console.error('  generate-mocs     Auto-generate Maps of Content from concepts');
   console.error('');
   console.error('Ask/Chat options:');
   console.error('  --top-k <n>       Number of context documents (default: 5)');
   console.error('  --style <name>    Prompt style: default, academic, concise');
   console.error('  --show-sources    Show source citations in answer');
+  console.error('');
+  console.error('MOC options:');
+  console.error('  --clusters <n>    Number of clusters (auto-detected if not specified)');
   console.error('');
   console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
 }
@@ -284,6 +290,33 @@ async function chatCommand(argv: string[]): Promise<void> {
   await engine.chat({ topK, showSources });
 }
 
+async function generateMocsCommand(argv: string[]): Promise<void> {
+  let numClusters: number | undefined;
+
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--clusters' && i + 1 < argv.length) {
+      numClusters = parseInt(argv[++i], 10) || undefined;
+    }
+  }
+
+  const config = defaultConfig;
+  const embeddingGenerator = new EmbeddingGenerator();
+
+  const conceptsDir = path.resolve(config.vault, config.conceptsDir);
+  const mocDir = path.resolve(config.vault, config.mocDir);
+  const sourceRegPath = path.resolve(config.vault, config.sourceRegistry);
+
+  const generator = new MocGenerator(
+    embeddingGenerator,
+    conceptsDir,
+    mocDir,
+    sourceRegPath,
+    config.model,
+  );
+
+  await generator.generate(numClusters);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -320,6 +353,11 @@ async function main(): Promise<void> {
 
   if (args[0] === 'chat') {
     await chatCommand(args.slice(1));
+    return;
+  }
+
+  if (args[0] === 'generate-mocs') {
+    await generateMocsCommand(args.slice(1));
     return;
   }
 
