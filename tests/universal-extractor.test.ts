@@ -2,6 +2,8 @@ import { describe, it, expect } from '@jest/globals';
 import { UniversalExtractor, SourceFormat } from '../src/universal-extractor.js';
 
 describe('UniversalExtractor', () => {
+  const extractor = new UniversalExtractor();
+
   describe('detectFormat', () => {
     it('detects .epub files', () => {
       expect(UniversalExtractor.detectFormat('book.epub')).toBe('epub');
@@ -40,7 +42,7 @@ describe('UniversalExtractor', () => {
 
   describe('extract', () => {
     it('extracts from HTML fixture', async () => {
-      const result = await UniversalExtractor.extract(
+      const result = await extractor.extract(
         new URL('./fixtures/sample.html', import.meta.url).pathname,
       );
       expect(result.format).toBe('html');
@@ -49,7 +51,7 @@ describe('UniversalExtractor', () => {
     });
 
     it('returns correct format in ExtractionResult', async () => {
-      const result = await UniversalExtractor.extract(
+      const result = await extractor.extract(
         new URL('./fixtures/sample.html', import.meta.url).pathname,
       );
       expect(result.format).toBe('html');

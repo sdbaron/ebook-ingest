@@ -2,6 +2,7 @@ import path from 'node:path';
 import { EpubExtractor } from './epub-extractor.js';
 import { PdfExtractor } from './pdf-extractor.js';
 import { HtmlExtractor } from './html-extractor.js';
+import { TextPreprocessor } from './text-preprocessor.js';
 
 /**
  * Supported source formats.
@@ -27,13 +28,19 @@ export interface ExtractionResult {
  * extractor (EpubExtractor, PdfExtractor, HtmlExtractor).
  */
 export class UniversalExtractor {
+  private preprocessor?: TextPreprocessor;
+
+  constructor(preprocessor?: TextPreprocessor) {
+    this.preprocessor = preprocessor;
+  }
+
   /**
    * Extract text blocks from any supported source format.
    *
    * @param sourcePath File path or URL
    * @param minChars   Minimum characters per block (forwarded to extractors)
    */
-  static async extract(
+  async extract(
     sourcePath: string,
     minChars?: number,
   ): Promise<ExtractionResult> {
@@ -51,6 +58,16 @@ export class UniversalExtractor {
       case 'url':
         blocks = await HtmlExtractor.extract(sourcePath, minChars);
         break;
+    }
+
+    // Apply preprocessing if configured
+    if (this.preprocessor) {
+      const result = this.preprocessor.process(blocks, format);
+      console.log(
+        `[PREPROCESS] ${result.stats.originalBlockCount} → ${result.stats.filteredBlockCount} blocks ` +
+        `(format: ${format})`,
+      );
+      blocks = result.blocks;
     }
 
     return { blocks, format, sourcePath };

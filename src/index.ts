@@ -3,6 +3,7 @@ export { EpubExtractor } from './epub-extractor.js';
 export { PdfExtractor } from './pdf-extractor.js';
 export { HtmlExtractor } from './html-extractor.js';
 export { UniversalExtractor, SourceFormat, ExtractionResult } from './universal-extractor.js';
+export { TextPreprocessor, PreprocessorOptions, PreprocessResult, PreprocessStats, defaultPreprocessorOptions } from './text-preprocessor.js';
 export { LLMAnalyzer, ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';
 export { ConceptNormalizer } from './concept-normalizer.js';
 export { RegistryManager } from './registry-manager.js';

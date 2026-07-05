@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { EbookIngestConfig } from './config.js';
 import { UniversalExtractor } from './universal-extractor.js';
+import { TextPreprocessor } from './text-preprocessor.js';
 import { LLMAnalyzer, ConceptEntry } from './llm-analyzer.js';
 import { ConceptNormalizer } from './concept-normalizer.js';
 import { RegistryManager } from './registry-manager.js';
@@ -15,6 +16,7 @@ export class WikiPipeline {
   private writer: ObsidianWriter;
   private knowledgeStore: KnowledgeStore;
   private llmAnalyzer: LLMAnalyzer;
+  private extractor: UniversalExtractor;
 
   constructor(config: EbookIngestConfig) {
     this.config = config;
@@ -33,6 +35,9 @@ export class WikiPipeline {
     );
 
     this.knowledgeStore = new KnowledgeStore(conceptRegPath, sourceRegPath);
+
+    const preprocessor = new TextPreprocessor();
+    this.extractor = new UniversalExtractor(preprocessor);
   }
 
   /**
@@ -57,7 +62,7 @@ export class WikiPipeline {
 
     console.log(`[INFO] Reading "${sourceName}" from ${sourcePath}`);
 
-    const extractionResult = await UniversalExtractor.extract(sourcePath);
+    const extractionResult = await this.extractor.extract(sourcePath);
     const blocks = extractionResult.blocks;
 
     console.log(`[INFO] Format: ${extractionResult.format}, Blocks: ${blocks.length}`);
