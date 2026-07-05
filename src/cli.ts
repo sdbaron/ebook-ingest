@@ -1,26 +1,29 @@
 import { defaultConfig, EbookIngestConfig } from './config.js';
+import { UniversalExtractor } from './universal-extractor.js';
 import { WikiPipeline } from './pipeline.js';
 
 function parseArgs(argv: string[]): {
-  epubPath: string;
-  bookName: string;
+  sourcePath: string;
+  sourceName: string;
   project: string;
   resume: boolean;
   config?: Partial<EbookIngestConfig>;
 } {
   if (argv.length < 2) {
     console.error(
-      'Usage: ebook-ingest <epub> <book_name> [project] [--resume|-r] [--config <path>]',
+      'Usage: ebook-ingest <source> <source_name> [project] [--resume|-r] [--config <path>]',
     );
     console.error('');
+    console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
+    console.error('');
     console.error('Options:');
-    console.error('  --resume, -r    Skip already-processed chapters');
+    console.error('  --resume, -r    Skip already-processed chapters/blocks');
     console.error('  --config <path>  Path to JSON config file (overrides defaults)');
     process.exit(1);
   }
 
-  const epubPath = argv[0];
-  const bookName = argv[1];
+  const sourcePath = argv[0];
+  const sourceName = argv[1];
 
   let project = 'General';
   let resume = false;
@@ -47,11 +50,20 @@ function parseArgs(argv: string[]): {
     }
   }
 
-  return { epubPath, bookName, project, resume, config: configOverride };
+  return { sourcePath, sourceName, project, resume, config: configOverride };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+
+  // Validate format early
+  try {
+    const format = UniversalExtractor.detectFormat(args.sourcePath);
+    console.log(`[INFO] Detected format: ${format}`);
+  } catch (err) {
+    console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
 
   const config: EbookIngestConfig = {
     ...defaultConfig,
@@ -59,7 +71,7 @@ async function main(): Promise<void> {
   };
 
   const pipeline = new WikiPipeline(config);
-  await pipeline.ingest(args.epubPath, args.bookName, args.project, args.resume);
+  await pipeline.ingest(args.sourcePath, args.sourceName, args.project, args.resume);
 }
 
 main().catch(err => {

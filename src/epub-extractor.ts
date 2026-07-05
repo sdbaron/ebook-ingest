@@ -15,8 +15,11 @@ export class EpubExtractor {
   /**
    * Extract chapters from an EPUB file.
    * Returns an array of text strings, one per chapter.
+   *
+   * @param epubPath Path to the .epub file
+   * @param minChars Minimum characters per chapter (default: 500)
    */
-  static async extract(epubPath: string): Promise<string[]> {
+  static async extract(epubPath: string, minChars: number = 500): Promise<string[]> {
     const epub = new EPub(epubPath);
 
     return new Promise<string[]>((resolve, reject) => {
@@ -36,7 +39,7 @@ export class EpubExtractor {
             const text = $.text();
             const cleaned = EpubExtractor.cleanText(text);
 
-            if (cleaned.length > 500) {
+            if (cleaned.length > minChars) {
               chapters.push(cleaned);
             }
           } catch {

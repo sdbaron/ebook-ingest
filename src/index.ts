@@ -1,5 +1,8 @@
 export { defaultConfig, EbookIngestConfig, resolveVaultPath } from './config.js';
 export { EpubExtractor } from './epub-extractor.js';
+export { PdfExtractor } from './pdf-extractor.js';
+export { HtmlExtractor } from './html-extractor.js';
+export { UniversalExtractor, SourceFormat, ExtractionResult } from './universal-extractor.js';
 export { LLMAnalyzer, ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';
 export { ConceptNormalizer } from './concept-normalizer.js';
 export { RegistryManager } from './registry-manager.js';

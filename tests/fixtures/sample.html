@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Document</title>
+  <style>body { font-family: sans-serif; }</style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Test HTML Document</h1>
+    <p>This is the first paragraph of the test document. It contains enough text to form a meaningful block for extraction testing. The extractor should be able to parse this content and split it into logical blocks based on sentence boundaries.</p>
+    <p>This is the second paragraph. It continues the discussion about HTML extraction and provides additional context for the test. We want to make sure the extractor handles multiple paragraphs correctly and groups them into appropriately sized blocks.</p>
+    <p>A third paragraph with more content. The boilerplate removal should strip out the navigation, footer, and other non-content elements. Only the main content area should be preserved for text extraction purposes.</p>
+  </main>
+  <aside class="sidebar">
+    <p>This sidebar content should be removed by the boilerplate filter.</p>
+  </aside>
+  <footer>
+    <p>Copyright © 2024 Test Corp. All rights reserved.</p>
+    <p>Terms of Service | Privacy Policy</p>
+  </footer>
+  <script>console.log('This script should be removed');</script>
+</body>
+</html>

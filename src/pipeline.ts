@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { EbookIngestConfig } from './config.js';
-import { EpubExtractor } from './epub-extractor.js';
+import { UniversalExtractor } from './universal-extractor.js';
 import { LLMAnalyzer, ConceptEntry } from './llm-analyzer.js';
 import { ConceptNormalizer } from './concept-normalizer.js';
 import { RegistryManager } from './registry-manager.js';
@@ -36,10 +36,15 @@ export class WikiPipeline {
 
   /**
    * Run the full ingestion pipeline.
+   *
+   * @param sourcePath Path to the source file (epub, pdf, html) or URL
+   * @param sourceName Name of the source (used as directory/filename)
+   * @param project    Project association (default: "General")
+   * @param resume     Skip already-processed chapters/blocks
    */
   async ingest(
-    epubPath: string,
-    bookName: string,
+    sourcePath: string,
+    sourceName: string,
     project: string = 'General',
     resume: boolean = false,
   ): Promise<void> {
@@ -49,11 +54,12 @@ export class WikiPipeline {
 
     await RegistryManager.ensure(metaDir, conceptRegPath, bookRegPath);
 
-    console.log(`[INFO] Reading ${bookName}`);
+    console.log(`[INFO] Reading "${sourceName}" from ${sourcePath}`);
 
-    const chapters = await EpubExtractor.extract(epubPath);
+    const extractionResult = await UniversalExtractor.extract(sourcePath);
+    const chapters = extractionResult.blocks;
 
-    console.log(`[INFO] Chapters: ${chapters.length}`);
+    console.log(`[INFO] Format: ${extractionResult.format}, Blocks: ${chapters.length}`);
 
     if (resume) {
       console.log('[INFO] Resume mode: skipping already-processed chapters');
@@ -70,17 +76,17 @@ export class WikiPipeline {
       const chapterPath = path.resolve(
         this.config.vault,
         this.config.booksDir,
-        bookName,
+        sourceName,
         `${String(chapterNum).padStart(2, '0')}.md`,
       );
 
       if (resume) {
         try {
           await import('node:fs/promises').then(fs => fs.access(chapterPath));
-          console.log(`[SKIP] Chapter ${chapterNum} (already processed)`);
+          console.log(`[SKIP] Block ${chapterNum} (already processed)`);
           skippedCount++;
           const existingConcepts = await this.writer.extractConceptsFromChapter(
-            bookName,
+            sourceName,
             chapterNum,
           );
           existingConcepts.forEach(c => allConcepts.add(c));
@@ -90,11 +96,11 @@ export class WikiPipeline {
         }
       }
 
-      console.log(`[LLM] Chapter ${chapterNum}`);
+      console.log(`[LLM] Block ${chapterNum}`);
 
       const result = await this.llmAnalyzer.analyze(chapter);
 
-      await this.writer.writeChapter(bookName, project, chapterNum, result);
+      await this.writer.writeChapter(sourceName, project, chapterNum, result);
 
       for (const concept of result.concepts) {
         const rec = concept as unknown as { name?: string; title?: string; term?: string };
@@ -102,7 +108,7 @@ export class WikiPipeline {
 
         if (!conceptName) {
           console.warn(
-            `[WARN] Chapter ${chapterNum}: Skipping concept without recognizable name. Keys: ${Object.keys(concept).join(', ')}`,
+            `[WARN] Block ${chapterNum}: Skipping concept without recognizable name. Keys: ${Object.keys(concept).join(', ')}`,
           );
           continue;
         }
@@ -117,19 +123,19 @@ export class WikiPipeline {
 
         allConcepts.add(name);
 
-        await this.knowledgeStore.registerConcept(name, bookName);
+        await this.knowledgeStore.registerConcept(name, sourceName);
 
-        await this.writer.updateConcept(name, description, bookName);
+        await this.writer.updateConcept(name, description, sourceName);
       }
     }
 
     if (resume && skippedCount > 0) {
-      console.log(`[INFO] Skipped ${skippedCount} already-processed chapters`);
+      console.log(`[INFO] Skipped ${skippedCount} already-processed blocks`);
     }
 
-    await this.knowledgeStore.registerBook(bookName, project);
+    await this.knowledgeStore.registerBook(sourceName, project);
 
-    await this.writer.writeBookIndex(bookName, chapters.length, allConcepts);
+    await this.writer.writeBookIndex(sourceName, chapters.length, allConcepts);
 
     await this.writer.writeGlobalMoc();
 
