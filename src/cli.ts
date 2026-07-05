@@ -5,6 +5,8 @@ import { WikiPipeline } from './pipeline.js';
 import { migrateCommand } from './migrate-vault.js';
 import { VectorStore, buildDocId } from './vector-store.js';
 import { EmbeddingGenerator } from './embedding-generator.js';
+import { ChatEngine } from './chat-engine.js';
+import { promptTemplates } from './prompt-templates.js';
 import path from 'node:path';
 
 function printUsage(): void {
@@ -14,6 +16,8 @@ function printUsage(): void {
   console.error('  ebook-ingest merge-concepts [--auto] [--dry-run]');
   console.error('  ebook-ingest search <query> [--top-k <n>]');
   console.error('  ebook-ingest reindex [--source <name>]');
+  console.error('  ebook-ingest ask <question> [--top-k <n>] [--style default|academic|concise] [--show-sources]');
+  console.error('  ebook-ingest chat [--top-k <n>] [--style default|academic|concise]');
   console.error('');
   console.error('Commands:');
   console.error('  ingest (default)  Import a source into the vault');
@@ -21,16 +25,13 @@ function printUsage(): void {
   console.error('  merge-concepts    Find and merge duplicate concepts');
   console.error('  search            Semantic search over indexed vault content');
   console.error('  reindex           Regenerate embeddings for existing vault');
+  console.error('  ask               Ask a question using RAG (single question)');
+  console.error('  chat              Interactive RAG chat session');
   console.error('');
-  console.error('Search options:');
-  console.error('  --top-k <n>       Number of results (default: 5)');
-  console.error('');
-  console.error('Reindex options:');
-  console.error('  --source <name>   Only reindex a specific source');
-  console.error('');
-  console.error('Merge options:');
-  console.error('  --auto            Auto-merge all candidates with score > 0.9');
-  console.error('  --dry-run         Show merge candidates without executing');
+  console.error('Ask/Chat options:');
+  console.error('  --top-k <n>       Number of context documents (default: 5)');
+  console.error('  --style <name>    Prompt style: default, academic, concise');
+  console.error('  --show-sources    Show source citations in answer');
   console.error('');
   console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
 }
@@ -224,6 +225,65 @@ async function reindexCommand(argv: string[]): Promise<void> {
   }
 }
 
+async function askCommand(argv: string[]): Promise<void> {
+  if (argv.length === 0 || argv[0] === '--help') {
+    console.error('Usage: ebook-ingest ask <question> [--top-k <n>] [--style default|academic|concise] [--show-sources]');
+    process.exit(1);
+  }
+
+  const question = argv[0];
+  let topK = 5;
+  let showSources = false;
+  let style = 'default';
+
+  for (let i = 1; i < argv.length; i++) {
+    if (argv[i] === '--top-k' && i + 1 < argv.length) topK = parseInt(argv[++i], 10) || 5;
+    if (argv[i] === '--show-sources') showSources = true;
+    if (argv[i] === '--style' && i + 1 < argv.length) style = argv[++i];
+  }
+
+  const config = defaultConfig;
+  const vectorStore = new VectorStore();
+  const embeddingGenerator = new EmbeddingGenerator();
+  const template = promptTemplates[style] || promptTemplates.default;
+
+  await vectorStore.connect();
+
+  const engine = new ChatEngine(vectorStore, embeddingGenerator, config.model, template);
+  const response = await engine.ask(question, { topK, showSources });
+
+  console.log(response.answer);
+
+  if (showSources && response.sources.length > 0) {
+    console.log('\n--- Sources ---');
+    for (const s of response.sources) {
+      console.log(`  [${s.sourceName}] Block ${s.blockIndex}: ${s.excerpt.slice(0, 100)}...`);
+    }
+  }
+}
+
+async function chatCommand(argv: string[]): Promise<void> {
+  let topK = 5;
+  let showSources = false;
+  let style = 'default';
+
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--top-k' && i + 1 < argv.length) topK = parseInt(argv[++i], 10) || 5;
+    if (argv[i] === '--show-sources') showSources = true;
+    if (argv[i] === '--style' && i + 1 < argv.length) style = argv[++i];
+  }
+
+  const config = defaultConfig;
+  const vectorStore = new VectorStore();
+  const embeddingGenerator = new EmbeddingGenerator();
+  const template = promptTemplates[style] || promptTemplates.default;
+
+  await vectorStore.connect();
+
+  const engine = new ChatEngine(vectorStore, embeddingGenerator, config.model, template);
+  await engine.chat({ topK, showSources });
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -250,6 +310,16 @@ async function main(): Promise<void> {
 
   if (args[0] === 'reindex') {
     await reindexCommand(args.slice(1));
+    return;
+  }
+
+  if (args[0] === 'ask') {
+    await askCommand(args.slice(1));
+    return;
+  }
+
+  if (args[0] === 'chat') {
+    await chatCommand(args.slice(1));
     return;
   }
 
