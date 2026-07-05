@@ -1,35 +1,55 @@
 # @tagesberichte/ebook-ingest
 
-**ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und einem globalen Map of Content (MOC).
+**ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und automatisch generierten Maps of Content (MOCs).
 
 ## Features
 
+### 📥 Extraktion & Preprocessing
 - **Universal Extractor** – Unterstützt EPUB, PDF, HTML-Dateien und URLs über eine einheitliche Schnittstelle.
 - **Text-Preprocessing** – Bereinigt Rohtext vor der LLM-Analyse:
   - Entfernt PDF-Header/Footer und Seitenzahlen
   - Filtert HTML-Boilerplate (Navigation, Cookie-Banner, Copyright)
   - Erkennt Kapitelgrenzen („Chapter 1", „1. Introduction", „IV. Methodology")
   - Qualitätsfilter: Mindestlänge, Buchstabenanteil, Wiederholungserkennung
-- **LLM-Analyse** – Nutzt ein lokales Ollama-Modell zur Analyse jedes Textblocks:
-  - Titel
-  - Zusammenfassung (2–3 Sätze)
-  - Extraktion von Schlüsselkonzepten mit Beschreibungen
 - **Source-Modell** – Einheitliches Datenmodell für alle Quelltypen (`epub`, `pdf`, `html`, `url`).
-- **Obsidian-Export** – Schreibt strukturierte Markdown-Dateien:
-  - Source-Blöcke mit YAML-Frontmatter (`type: source_block`, `source_type:`)
-  - Source-Index mit Block- und Konzeptübersicht (`type: source`)
-  - Konzeptnotizen mit Definitionen und Rückverweisen auf Quellen
-  - Globalen Map of Content (MOC)
-- **Registrierung** – JSON-basierte Registries für Quellen und Konzepte mit Metadaten.
-- **Resume-Modus** – Überspringt bereits verarbeitete Blöcke bei erneuter Ausführung.
-- **Konzept-Normalisierung** – Bereinigt Konzeptnamen für Dateinamen und Wikilinks.
-- **Vault-Migration** – CLI-Befehl `migrate` für v2→v3 Migration (Book→Source-Modell).
+
+### 🧠 LLM-Analyse
+- Nutzt ein lokales Ollama-Modell zur Analyse jedes Textblocks:
+  - Titel + Zusammenfassung (2–3 Sätze)
+  - Extraktion von Schlüsselkonzepten mit Beschreibungen
+- **Concept Merge Engine** – Erkennt und merged Duplikate (Normalisierung, Akronyme, LLM-Ähnlichkeit).
+
+### 📝 Obsidian-Export
+- Source-Blöcke mit YAML-Frontmatter (`type: source_block`, `source_type:`)
+- Source-Index mit Block- und Konzeptübersicht (`type: source`)
+- Konzeptnotizen mit Definitionen und Rückverweisen auf Quellen
+- JSON-Registries für Quellen und Konzepte mit Metadaten
+- **Resume-Modus** – Überspringt bereits verarbeitete Blöcke
+
+### 🔍 Vektorsuche & Chat (RAG)
+- **ChromaDB-Integration** – Embeddings für alle Textblöcke (Cosine Similarity)
+- **Semantische Suche** – `search`-Befehl über den gesamten Vault
+- **Chat-Interface** – RAG-Pipeline: Retrieve → Augment → Generate
+- Prompt-Templates: Standard, Akademisch, Kurz (Bullet Points)
+- Interaktiver Chat-Modus mit `/clear`, `/history`
+
+### 🗂 Auto MOC Clustering
+- **K-Means-Clustering** von Konzept-Embeddings
+- Automatische Cluster-Anzahl (Elbow-Methode) + Silhouette-Score
+- LLM-generierte Cluster-Labels
+- Automatisch generierte MOC-Dateien in `04_mocs/`
+
+### 🔧 Utilities
+- **Vault-Migration** – `migrate`-Befehl für v2→v3 (Book→Source-Modell)
+- **Konzept-Normalisierung** – Bereinigt Konzeptnamen für Dateinamen und Wikilinks
 
 ## Voraussetzungen
 
 - [Node.js](https://nodejs.org/) (≥ 18)
 - [pnpm](https://pnpm.io/)
-- [Ollama](https://ollama.ai/) mit einem heruntergeladenen Modell (z. B. `llama3.2`)
+- [Ollama](https://ollama.ai/) mit einem heruntergeladenen Chat-Modell (z. B. `llama3.2`)
+- Für Vektorsuche: [ChromaDB](https://www.trychroma.com/) (Docker oder lokale Installation)
+- Für Embeddings: Ollama Embedding-Modell (`ollama pull nomic-embed-text`)
 
 ## Installation
 
@@ -101,17 +121,31 @@ pnpm dev ./dokument.pdf "Research Paper" "Wissenschaft"
 pnpm dev https://example.com/article "Web Article"
 
 # Mit Resume-Modus
-pnpm dev ./buch.epub "Domain-Driven Design" "Software Engineering" --resume
+pnpm dev ./buch.epub "DDD" "Software Engineering" --resume
 
 # Vault von v2 auf v3 migrieren
-pnpm dev migrate --vault /pfad/zum/vault
 pnpm dev migrate --vault /pfad/zum/vault --dry-run
+
+# Duplikate finden und mergen
+pnpm dev merge-concepts --auto
+
+# Semantische Suche
+pnpm dev search "Was ist Dependency Inversion?" --top-k 5
+
+# Frage an den Vault (RAG)
+pnpm dev ask "Erkläre das Single Responsibility Principle" --style academic --show-sources
+
+# Interaktiver Chat
+pnpm dev chat --style concise
+
+# Auto MOCs generieren
+pnpm dev generate-mocs --clusters 5
 ```
 
 ## Tests
 
 ```bash
-# Tests ausführen (65 Tests, 9 Suites)
+# Tests ausführen (103 Tests, 15 Suites)
 pnpm test
 
 # Tests im Watch-Modus
@@ -122,14 +156,20 @@ pnpm test:watch
 
 ```
 src/
-├── cli.ts                   # CLI-Einstiegspunkt (ingest + migrate)
+├── cli.ts                   # CLI (ingest, migrate, merge-concepts, search, ask, chat, generate-mocs)
 ├── config.ts                # Konfiguration und Standardwerte
 ├── concept-normalizer.ts    # Normalisiert Konzeptnamen für Dateinamen
+├── concept-merge-engine.ts  # Duplikaterkennung & Merging (P1)
 ├── epub-extractor.ts        # EPUB → Text
 ├── pdf-extractor.ts         # PDF → Text                (P0)
 ├── html-extractor.ts        # HTML/URL → Text           (P0)
 ├── universal-extractor.ts   # Format-agnostische Factory (P0)
 ├── text-preprocessor.ts     # Textbereinigung            (P1)
+├── embedding-generator.ts   # Ollama Embeddings          (P2)
+├── vector-store.ts          # ChromaDB Client            (P2)
+├── chat-engine.ts           # RAG Chat                   (P2)
+├── prompt-templates.ts      # Prompt Styles              (P2)
+├── moc-generator.ts         # Auto MOC Clustering        (P3)
 ├── index.ts                 # Öffentliches API-Modul
 ├── knowledge-store.ts       # Source- + Concept-Registries
 ├── llm-analyzer.ts          # LLM-gestützte Analyse (Ollama)
