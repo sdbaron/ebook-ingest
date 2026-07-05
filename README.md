@@ -1,28 +1,35 @@
 # @tagesberichte/ebook-ingest
 
-**ebook-ingest** ist ein Tool zum Importieren von EPUB-Dateien in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Kapitel aus einem EPUB, analysiert sie mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Kapitelzusammenfassungen, Konzeptextraktion, Verknüpfungen und einem globalen Map of Content (MOC).
+**ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und einem globalen Map of Content (MOC).
 
 ## Features
 
-- **EPUB-Extraktion** – Extrahiert rohen Text aus EPUB-Dateien, Kapitel für Kapitel.
-- **LLM-Analyse** – Nutzt ein lokales Ollama-Modell zur Analyse jedes Kapitels:
+- **Universal Extractor** – Unterstützt EPUB, PDF, HTML-Dateien und URLs über eine einheitliche Schnittstelle.
+- **Text-Preprocessing** – Bereinigt Rohtext vor der LLM-Analyse:
+  - Entfernt PDF-Header/Footer und Seitenzahlen
+  - Filtert HTML-Boilerplate (Navigation, Cookie-Banner, Copyright)
+  - Erkennt Kapitelgrenzen („Chapter 1", „1. Introduction", „IV. Methodology")
+  - Qualitätsfilter: Mindestlänge, Buchstabenanteil, Wiederholungserkennung
+- **LLM-Analyse** – Nutzt ein lokales Ollama-Modell zur Analyse jedes Textblocks:
   - Titel
   - Zusammenfassung (2–3 Sätze)
   - Extraktion von Schlüsselkonzepten mit Beschreibungen
+- **Source-Modell** – Einheitliches Datenmodell für alle Quelltypen (`epub`, `pdf`, `html`, `url`).
 - **Obsidian-Export** – Schreibt strukturierte Markdown-Dateien:
-  - Kapitelnotizen mit YAML-Frontmatter, Zusammenfassung und Konzept-Links (`[[wikilinks]]`)
-  - Konzeptnotizen mit Definitionen und Rückverweisen auf Bücher
-  - Buchindex mit Kapitel- und Konzeptübersicht
+  - Source-Blöcke mit YAML-Frontmatter (`type: source_block`, `source_type:`)
+  - Source-Index mit Block- und Konzeptübersicht (`type: source`)
+  - Konzeptnotizen mit Definitionen und Rückverweisen auf Quellen
   - Globalen Map of Content (MOC)
-- **Registrierung** – JSON-basierte Registries für Bücher und Konzepte zur Nachverfolgung
-- **Resume-Modus** – Überspringt bereits verarbeitete Kapitel bei erneuter Ausführung
-- **Konzept-Normalisierung** – Bereinigt Konzeptnamen für die Verwendung als Dateinamen und Wikilinks
+- **Registrierung** – JSON-basierte Registries für Quellen und Konzepte mit Metadaten.
+- **Resume-Modus** – Überspringt bereits verarbeitete Blöcke bei erneuter Ausführung.
+- **Konzept-Normalisierung** – Bereinigt Konzeptnamen für Dateinamen und Wikilinks.
+- **Vault-Migration** – CLI-Befehl `migrate` für v2→v3 Migration (Book→Source-Modell).
 
 ## Voraussetzungen
 
 - [Node.js](https://nodejs.org/) (≥ 18)
 - [pnpm](https://pnpm.io/)
-- [Ollama](https://ollama.ai/) mit einem heruntergeladenen Modell (z. B. `llama3.1`)
+- [Ollama](https://ollama.ai/) mit einem heruntergeladenen Modell (z. B. `llama3.2`)
 
 ## Installation
 
@@ -45,13 +52,15 @@ Die Standardkonfiguration befindet sich in `src/config.ts`:
 | Option | Standardwert | Beschreibung |
 |---|---|---|
 | `vault` | `/Users/sergeydaub/work/barmbini/ObsidianVault` | Root-Pfad des Obsidian-Vaults |
-| `booksDir` | `01_books` | Verzeichnis für Buch-Kapitelnotizen |
+| `sourcesDir` | `05_sources` | Verzeichnis für Source-Notizen |
 | `conceptsDir` | `02_concepts` | Verzeichnis für Konzeptnotizen |
 | `mocDir` | `04_mocs` | Verzeichnis für Maps of Content |
 | `metaDir` | `99_meta` | Verzeichnis für Metadaten/Registries |
 | `conceptRegistry` | `99_meta/concept_registry.json` | Pfad zur Konzept-Registry |
-| `bookRegistry` | `99_meta/books_registry.json` | Pfad zur Buch-Registry |
-| `model` | `llama3.1` | Ollama-Modell für die LLM-Analyse |
+| `sourceRegistry` | `99_meta/sources_registry.json` | Pfad zur Source-Registry |
+| `model` | `llama3.2:latest` | Ollama-Modell für die LLM-Analyse |
+
+> **Veraltete Optionen:** `booksDir`, `bookRegistry` existieren weiterhin als `@deprecated`-Aliase.
 
 Du kannst die Konfiguration überschreiben, indem du eine JSON-Konfigurationsdatei erstellst und diese mit der Option `--config` übergibst.
 
@@ -60,62 +69,49 @@ Du kannst die Konfiguration überschreiben, indem du eine JSON-Konfigurationsdat
 ### Entwicklung (mit Hot-Reload)
 
 ```bash
-pnpm dev <epub> <buchname> [projekt] [optionen]
+pnpm dev <quelle> <quellenname> [projekt] [optionen]
 ```
 
 ### Kompilierte Version
 
 ```bash
-node dist/cli.js <epub> <buchname> [projekt] [optionen]
-```
-
-### Globaler Befehl (optional)
-
-Nach dem Build kann `ebook-ingest` global verfügbar gemacht werden:
-
-```bash
-pnpm link --global
-```
-
-Danach ist der Befehl systemweit nutzbar:
-
-```bash
-ebook-ingest <epub> <buchname> [projekt] [optionen]
-```
-
-Zum Entfernen des globalen Links:
-
-```bash
-pnpm uninstall --global @tagesberichte/ebook-ingest
+node dist/cli.js <quelle> <quellenname> [projekt] [optionen]
 ```
 
 ### Argumente
 
 | Argument | Beschreibung |
 |---|---|
-| `<epub>` | Pfad zur EPUB-Datei |
-| `<buchname>` | Name des Buches (wird als Verzeichnis- und Dateiname verwendet) |
+| `<quelle>` | Pfad zur Quelldatei (.epub, .pdf, .html) oder URL |
+| `<quellenname>` | Name der Quelle (wird als Verzeichnis- und Dateiname verwendet) |
 | `[projekt]` | Projektzuordnung (Standard: `General`) |
-| `--resume`, `-r` | Überspringe bereits verarbeitete Kapitel |
+| `--resume`, `-r` | Überspringe bereits verarbeitete Blöcke |
 | `--config <pfad>` | Pfad zu einer JSON-Konfigurationsdatei |
 
 ### Beispiele
 
 ```bash
-# Ein Buch mit Standardkonfiguration importieren
+# EPUB importieren
 pnpm dev ./mein-buch.epub "Clean Code"
 
-# Mit Projektzuordnung und Resume-Modus
+# PDF importieren
+pnpm dev ./dokument.pdf "Research Paper" "Wissenschaft"
+
+# Webseite importieren
+pnpm dev https://example.com/article "Web Article"
+
+# Mit Resume-Modus
 pnpm dev ./buch.epub "Domain-Driven Design" "Software Engineering" --resume
 
-# Mit benutzerdefinierter Konfiguration
-pnpm dev ./buch.epub "Refactoring" --config ./my-config.json
+# Vault von v2 auf v3 migrieren
+pnpm dev migrate --vault /pfad/zum/vault
+pnpm dev migrate --vault /pfad/zum/vault --dry-run
 ```
 
 ## Tests
 
 ```bash
-# Tests ausführen
+# Tests ausführen (65 Tests, 9 Suites)
 pnpm test
 
 # Tests im Watch-Modus
@@ -126,26 +122,32 @@ pnpm test:watch
 
 ```
 src/
-├── cli.ts                # CLI-Einstiegspunkt
-├── config.ts             # Konfiguration und Standardwerte
-├── concept-normalizer.ts # Normalisiert Konzeptnamen für Dateinamen
-├── epub-extractor.ts     # Extrahiert Text aus EPUB-Dateien
-├── index.ts              # Öffentliches API-Modul
-├── knowledge-store.ts    # Verwaltet Konzept- und Buch-Registries
-├── llm-analyzer.ts       # LLM-gestützte Kapitelanalyse (Ollama)
-├── obsidian-writer.ts    # Schreibt Obsidian-Markdown-Dateien
-├── pipeline.ts           # Haupt-Pipeline (EPUB → Analyse → Vault)
-└── registry-manager.ts   # JSON-Registry-Dateiverwaltung
+├── cli.ts                   # CLI-Einstiegspunkt (ingest + migrate)
+├── config.ts                # Konfiguration und Standardwerte
+├── concept-normalizer.ts    # Normalisiert Konzeptnamen für Dateinamen
+├── epub-extractor.ts        # EPUB → Text
+├── pdf-extractor.ts         # PDF → Text                (P0)
+├── html-extractor.ts        # HTML/URL → Text           (P0)
+├── universal-extractor.ts   # Format-agnostische Factory (P0)
+├── text-preprocessor.ts     # Textbereinigung            (P1)
+├── index.ts                 # Öffentliches API-Modul
+├── knowledge-store.ts       # Source- + Concept-Registries
+├── llm-analyzer.ts          # LLM-gestützte Analyse (Ollama)
+├── migrate-vault.ts         # v2→v3 Migration            (P0)
+├── obsidian-writer.ts       # Obsidian-Markdown schreiben
+├── pipeline.ts              # Haupt-Pipeline
+└── registry-manager.ts      # JSON-Registry-Dateiverwaltung
 ```
 
 ## Ablauf der Pipeline
 
 1. **Initialisierung** – Meta-Verzeichnis und Registry-Dateien werden angelegt.
-2. **EPUB-Extraktion** – Die EPUB-Datei wird gelesen und in einzelne Kapitel aufgeteilt (Kapitel mit weniger als 500 Zeichen werden gefiltert).
-3. **LLM-Analyse** – Jedes Kapitel wird an ein lokales Ollama-Modell gesendet, das Titel, Zusammenfassung und Konzepte extrahiert.
-4. **Obsidian-Export** – Für jedes Kapitel wird eine Markdown-Datei geschrieben. Konzeptnotizen werden erstellt oder aktualisiert.
-5. **Indizierung** – Ein Buchindex und der globale Map of Content werden generiert.
-6. **Registrierung** – Alle Konzepte und Bücher werden in JSON-Registries nachverfolgt.
+2. **Extraktion** – Die Quelle wird formatabhängig extrahiert (EPUB/PDF/HTML/URL).
+3. **Preprocessing** – Rohtext wird bereinigt (Header/Footer, Boilerplate, Kapitelerkennung, Qualitätsfilter).
+4. **LLM-Analyse** – Jeder Block wird an Ollama gesendet, das Titel, Zusammenfassung und Konzepte extrahiert.
+5. **Obsidian-Export** – Source-Blöcke und Konzeptnotizen werden als Markdown in `05_sources/` und `02_concepts/` geschrieben.
+6. **Indizierung** – Source-Index und globaler MOC werden generiert.
+7. **Registrierung** – Quellen und Konzepte werden in JSON-Registries mit Metadaten nachverfolgt.
 
 ## Lizenz
 
