@@ -6,6 +6,7 @@ export { UniversalExtractor, SourceFormat, ExtractionResult } from './universal-
 export { LLMAnalyzer, ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';
 export { ConceptNormalizer } from './concept-normalizer.js';
 export { RegistryManager } from './registry-manager.js';
-export { KnowledgeStore } from './knowledge-store.js';
+export { KnowledgeStore, SourceEntry, ConceptEntry as ConceptRegistryEntry } from './knowledge-store.js';
 export { ObsidianWriter } from './obsidian-writer.js';
 export { WikiPipeline } from './pipeline.js';
+export { migrateVault, migrateCommand } from './migrate-vault.js';

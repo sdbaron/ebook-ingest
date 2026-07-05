@@ -21,17 +21,18 @@ export class WikiPipeline {
     this.llmAnalyzer = new LLMAnalyzer(config.model);
 
     const conceptRegPath = path.resolve(config.vault, config.conceptRegistry);
-    const bookRegPath = path.resolve(config.vault, config.bookRegistry);
+    const sourceRegPath = path.resolve(config.vault, config.sourceRegistry);
 
     this.writer = new ObsidianWriter(
       config.vault,
       config.booksDir,
+      config.sourcesDir,
       config.conceptsDir,
       config.mocDir,
       conceptRegPath,
     );
 
-    this.knowledgeStore = new KnowledgeStore(conceptRegPath, bookRegPath);
+    this.knowledgeStore = new KnowledgeStore(conceptRegPath, sourceRegPath);
   }
 
   /**
@@ -49,58 +50,61 @@ export class WikiPipeline {
     resume: boolean = false,
   ): Promise<void> {
     const conceptRegPath = path.resolve(this.config.vault, this.config.conceptRegistry);
-    const bookRegPath = path.resolve(this.config.vault, this.config.bookRegistry);
+    const sourceRegPath = path.resolve(this.config.vault, this.config.sourceRegistry);
     const metaDir = path.resolve(this.config.vault, this.config.metaDir);
 
-    await RegistryManager.ensure(metaDir, conceptRegPath, bookRegPath);
+    await RegistryManager.ensure(metaDir, conceptRegPath, sourceRegPath);
 
     console.log(`[INFO] Reading "${sourceName}" from ${sourcePath}`);
 
     const extractionResult = await UniversalExtractor.extract(sourcePath);
-    const chapters = extractionResult.blocks;
+    const blocks = extractionResult.blocks;
 
-    console.log(`[INFO] Format: ${extractionResult.format}, Blocks: ${chapters.length}`);
+    console.log(`[INFO] Format: ${extractionResult.format}, Blocks: ${blocks.length}`);
 
     if (resume) {
-      console.log('[INFO] Resume mode: skipping already-processed chapters');
+      console.log('[INFO] Resume mode: skipping already-processed blocks');
     }
 
     const allConcepts = new Set<string>();
     let skippedCount = 0;
 
-    for (let i = 0; i < chapters.length; i++) {
-      const chapterNum = i + 1;
-      const chapter = chapters[i];
+    for (let i = 0; i < blocks.length; i++) {
+      const blockNum = i + 1;
+      const blockText = blocks[i];
 
-      // Resume: skip if chapter file already exists
-      const chapterPath = path.resolve(
-        this.config.vault,
-        this.config.booksDir,
-        sourceName,
-        `${String(chapterNum).padStart(2, '0')}.md`,
-      );
+      // Resume: skip if block file already exists (check both new and old dirs)
+      const resumePaths = [
+        path.resolve(this.config.vault, this.config.sourcesDir, sourceName, `${String(blockNum).padStart(2, '0')}.md`),
+        path.resolve(this.config.vault, this.config.booksDir, sourceName, `${String(blockNum).padStart(2, '0')}.md`),
+      ];
 
       if (resume) {
-        try {
-          await import('node:fs/promises').then(fs => fs.access(chapterPath));
-          console.log(`[SKIP] Block ${chapterNum} (already processed)`);
+        let alreadyExists = false;
+        for (const p of resumePaths) {
+          try {
+            await import('node:fs/promises').then(fs => fs.access(p));
+            alreadyExists = true;
+            break;
+          } catch { /* try next */ }
+        }
+        if (alreadyExists) {
+          console.log(`[SKIP] Block ${blockNum} (already processed)`);
           skippedCount++;
           const existingConcepts = await this.writer.extractConceptsFromChapter(
             sourceName,
-            chapterNum,
+            blockNum,
           );
           existingConcepts.forEach(c => allConcepts.add(c));
           continue;
-        } catch {
-          // File doesn't exist, process it
         }
       }
 
-      console.log(`[LLM] Block ${chapterNum}`);
+      console.log(`[LLM] Block ${blockNum}`);
 
-      const result = await this.llmAnalyzer.analyze(chapter);
+      const result = await this.llmAnalyzer.analyze(blockText);
 
-      await this.writer.writeChapter(sourceName, project, chapterNum, result);
+      await this.writer.writeSourceBlock(sourceName, project, blockNum, result, extractionResult.format);
 
       for (const concept of result.concepts) {
         const rec = concept as unknown as { name?: string; title?: string; term?: string };
@@ -108,7 +112,7 @@ export class WikiPipeline {
 
         if (!conceptName) {
           console.warn(
-            `[WARN] Block ${chapterNum}: Skipping concept without recognizable name. Keys: ${Object.keys(concept).join(', ')}`,
+            `[WARN] Block ${blockNum}: Skipping concept without recognizable name. Keys: ${Object.keys(concept).join(', ')}`,
           );
           continue;
         }
@@ -133,9 +137,14 @@ export class WikiPipeline {
       console.log(`[INFO] Skipped ${skippedCount} already-processed blocks`);
     }
 
-    await this.knowledgeStore.registerBook(sourceName, project);
+    await this.knowledgeStore.registerSource(
+      sourceName,
+      project,
+      extractionResult.format,
+      sourcePath,
+    );
 
-    await this.writer.writeBookIndex(sourceName, chapters.length, allConcepts);
+    await this.writer.writeSourceIndex(sourceName, blocks.length, allConcepts, extractionResult.format);
 
     await this.writer.writeGlobalMoc();
 

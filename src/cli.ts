@@ -1,8 +1,29 @@
 import { defaultConfig, EbookIngestConfig } from './config.js';
 import { UniversalExtractor } from './universal-extractor.js';
 import { WikiPipeline } from './pipeline.js';
+import { migrateCommand } from './migrate-vault.js';
 
-function parseArgs(argv: string[]): {
+function printUsage(): void {
+  console.error('Usage:');
+  console.error('  ebook-ingest <source> <source_name> [project] [--resume|-r] [--config <path>]');
+  console.error('  ebook-ingest migrate [--vault <path>] [--dry-run]');
+  console.error('');
+  console.error('Commands:');
+  console.error('  ingest (default)  Import a source into the vault');
+  console.error('  migrate           Migrate v2 vault (Book-Model) to v3 (Source-Model)');
+  console.error('');
+  console.error('Ingest options:');
+  console.error('  --resume, -r      Skip already-processed blocks');
+  console.error('  --config <path>   Path to JSON config file (overrides defaults)');
+  console.error('');
+  console.error('Migrate options:');
+  console.error('  --vault <path>    Path to the Obsidian vault');
+  console.error('  --dry-run         Show what would change without writing');
+  console.error('');
+  console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
+}
+
+function parseIngestArgs(argv: string[]): {
   sourcePath: string;
   sourceName: string;
   project: string;
@@ -10,15 +31,7 @@ function parseArgs(argv: string[]): {
   config?: Partial<EbookIngestConfig>;
 } {
   if (argv.length < 2) {
-    console.error(
-      'Usage: ebook-ingest <source> <source_name> [project] [--resume|-r] [--config <path>]',
-    );
-    console.error('');
-    console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
-    console.error('');
-    console.error('Options:');
-    console.error('  --resume, -r    Skip already-processed chapters/blocks');
-    console.error('  --config <path>  Path to JSON config file (overrides defaults)');
+    printUsage();
     process.exit(1);
   }
 
@@ -34,9 +47,7 @@ function parseArgs(argv: string[]): {
     if (arg === '--resume' || arg === '-r') {
       resume = true;
     } else if (arg === '--config' && i + 1 < argv.length) {
-      // Config file path — will be loaded and merged
       const configPath = argv[++i];
-      // Dynamic import for config file
       import(configPath)
         .then(mod => {
           configOverride = mod.default || mod;
@@ -53,12 +64,49 @@ function parseArgs(argv: string[]): {
   return { sourcePath, sourceName, project, resume, config: configOverride };
 }
 
+function parseMigrateArgs(argv: string[]): {
+  vault?: string;
+  dryRun: boolean;
+} {
+  let vault: string | undefined;
+  let dryRun = false;
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--vault' && i + 1 < argv.length) {
+      vault = argv[++i];
+    } else if (arg === '--dry-run') {
+      dryRun = true;
+    }
+  }
+
+  return { vault, dryRun };
+}
+
 async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  const args = process.argv.slice(2);
+
+  // Handle subcommands
+  if (args[0] === 'migrate') {
+    const migrateArgs = parseMigrateArgs(args.slice(1));
+    const config: EbookIngestConfig = {
+      ...defaultConfig,
+      ...(migrateArgs.vault ? { vault: migrateArgs.vault } : {}),
+    };
+    await migrateCommand(config, migrateArgs.dryRun);
+    return;
+  }
+
+  if (args[0] === '--help' || args[0] === '-h') {
+    printUsage();
+    process.exit(0);
+  }
+
+  const ingestArgs = parseIngestArgs(args);
 
   // Validate format early
   try {
-    const format = UniversalExtractor.detectFormat(args.sourcePath);
+    const format = UniversalExtractor.detectFormat(ingestArgs.sourcePath);
     console.log(`[INFO] Detected format: ${format}`);
   } catch (err) {
     console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
@@ -67,11 +115,11 @@ async function main(): Promise<void> {
 
   const config: EbookIngestConfig = {
     ...defaultConfig,
-    ...args.config,
+    ...ingestArgs.config,
   };
 
   const pipeline = new WikiPipeline(config);
-  await pipeline.ingest(args.sourcePath, args.sourceName, args.project, args.resume);
+  await pipeline.ingest(ingestArgs.sourcePath, ingestArgs.sourceName, ingestArgs.project, ingestArgs.resume);
 }
 
 main().catch(err => {

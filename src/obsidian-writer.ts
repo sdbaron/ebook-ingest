@@ -9,7 +9,9 @@ import { RegistryManager } from './registry-manager.js';
  */
 export class ObsidianWriter {
   private vault: string;
+  /** @deprecated Use sourcesDir */
   private booksDir: string;
+  private sourcesDir: string;
   private conceptsDir: string;
   private mocDir: string;
   private conceptRegistryPath: string;
@@ -17,30 +19,33 @@ export class ObsidianWriter {
   constructor(
     vault: string,
     booksDir: string,
+    sourcesDir: string,
     conceptsDir: string,
     mocDir: string,
     conceptRegistryPath: string,
   ) {
     this.vault = vault;
     this.booksDir = booksDir;
+    this.sourcesDir = sourcesDir;
     this.conceptsDir = conceptsDir;
     this.mocDir = mocDir;
     this.conceptRegistryPath = conceptRegistryPath;
   }
 
   /**
-   * Write a chapter markdown file.
+   * Write a source block markdown file (new method).
    */
-  async writeChapter(
-    bookName: string,
+  async writeSourceBlock(
+    sourceName: string,
     project: string,
-    chapterNum: number,
-    chapterData: ChapterAnalysis,
+    blockNum: number,
+    blockData: ChapterAnalysis,
+    sourceType: string = 'epub',
   ): Promise<void> {
-    const bookDir = path.resolve(this.vault, this.booksDir, bookName);
-    await fs.mkdir(bookDir, { recursive: true });
+    const sourceDir = path.resolve(this.vault, this.sourcesDir, sourceName);
+    await fs.mkdir(sourceDir, { recursive: true });
 
-    const concepts = chapterData.concepts
+    const concepts = blockData.concepts
       .map((c: ConceptEntry) => {
         const rec = c as unknown as Record<string, string>;
         const name = c.name || rec.title || rec.term || '';
@@ -57,51 +62,104 @@ export class ObsidianWriter {
     const links = concepts.map(c => `- [[${c}]]`).join('\n');
 
     const md = `---
-type: chapter
-book: ${bookName}
+type: source_block
+source: ${sourceName}
+source_type: ${sourceType}
 project: ${project}
 ---
 
-# ${chapterData.title}
+# ${blockData.title}
 
 ## Summary
 
-${chapterData.summary}
+${blockData.summary}
 
 ## Concepts
 
 ${links}
 `;
 
-    const filePath = path.resolve(bookDir, `${String(chapterNum).padStart(2, '0')}.md`);
+    const filePath = path.resolve(sourceDir, `${String(blockNum).padStart(2, '0')}.md`);
     await fs.writeFile(filePath, md, 'utf-8');
+  }
+
+  /**
+   * Write a source index with block listing and concept links (new method).
+   */
+  async writeSourceIndex(
+    sourceName: string,
+    blockCount: number,
+    concepts: Set<string>,
+    sourceType: string = 'epub',
+  ): Promise<void> {
+    const sourceDir = path.resolve(this.vault, this.sourcesDir, sourceName);
+    await fs.mkdir(sourceDir, { recursive: true });
+
+    const blocks = Array.from(
+      { length: blockCount },
+      (_, i) => `- [[${String(i + 1).padStart(2, '0')}]]`,
+    ).join('\n');
+
+    const conceptLinks = [...concepts]
+      .sort()
+      .map(c => `- [[${c}]]`)
+      .join('\n');
+
+    const md = `---
+type: source
+source_type: ${sourceType}
+---
+
+# ${sourceName}
+
+## Blocks
+
+${blocks}
+
+## Concepts
+
+${conceptLinks}
+`;
+
+    const filePath = path.resolve(sourceDir, 'index.md');
+    await fs.writeFile(filePath, md, 'utf-8');
+  }
+
+  /** @deprecated Use writeSourceBlock */
+  async writeChapter(
+    bookName: string,
+    project: string,
+    chapterNum: number,
+    chapterData: ChapterAnalysis,
+  ): Promise<void> {
+    return this.writeSourceBlock(bookName, project, chapterNum, chapterData, 'epub');
   }
 
   /**
    * Update or create a concept note.
    */
-  async updateConcept(conceptName: string, description: string, bookName: string): Promise<void> {
+  async updateConcept(conceptName: string, description: string, sourceName: string): Promise<void> {
     const conceptsDirPath = path.resolve(this.vault, this.conceptsDir);
     await fs.mkdir(conceptsDirPath, { recursive: true });
 
     const filePath = path.resolve(conceptsDirPath, `${conceptName}.md`);
 
-    const books = new Set<string>();
-    books.add(bookName);
+    const sources = new Set<string>();
+    sources.add(sourceName);
 
     try {
       const existingContent = await fs.readFile(filePath, 'utf-8');
       const matches = existingContent.matchAll(/\[\[(.*?)\]\]/g);
       for (const m of matches) {
-        books.add(m[1]);
+        sources.add(m[1]);
       }
     } catch {
       // File doesn't exist yet — that's fine
     }
 
-    const booksSection = [...books]
+    const sourcesSection = [...sources]
       .sort()
-      .map(b => `- [[${b}]]`)
+      .map(s => `- [[${s}]]`)
       .join('\n');
 
     const md = `---
@@ -116,85 +174,58 @@ ${description}
 
 ## Mentioned in
 
-${booksSection}
+${sourcesSection}
 `;
 
     await fs.writeFile(filePath, md, 'utf-8');
   }
 
-  /**
-   * Write the book index with chapter listing and concept links.
-   */
+  /** @deprecated Use writeSourceIndex */
   async writeBookIndex(
     bookName: string,
     chapterCount: number,
     concepts: Set<string>,
   ): Promise<void> {
-    const bookDir = path.resolve(this.vault, this.booksDir, bookName);
-    await fs.mkdir(bookDir, { recursive: true });
-
-    const chapters = Array.from(
-      { length: chapterCount },
-      (_, i) => `- [[${String(i + 1).padStart(2, '0')}]]`,
-    ).join('\n');
-
-    const conceptLinks = [...concepts]
-      .sort()
-      .map(c => `- [[${c}]]`)
-      .join('\n');
-
-    const md = `---
-type: book
----
-
-# ${bookName}
-
-## Chapters
-
-${chapters}
-
-## Concepts
-
-${conceptLinks}
-`;
-
-    const filePath = path.resolve(bookDir, 'index.md');
-    await fs.writeFile(filePath, md, 'utf-8');
+    return this.writeSourceIndex(bookName, chapterCount, concepts, 'epub');
   }
 
   /**
-   * Extract concept names from an existing chapter file.
+   * Extract concept names from an existing source block file.
    */
-  async extractConceptsFromChapter(bookName: string, chapterNum: number): Promise<Set<string>> {
-    const filePath = path.resolve(
-      this.vault,
-      this.booksDir,
-      bookName,
-      `${String(chapterNum).padStart(2, '0')}.md`,
-    );
+  async extractConceptsFromChapter(sourceName: string, blockNum: number): Promise<Set<string>> {
+    // Try new sourcesDir first, fall back to booksDir
+    for (const dir of [this.sourcesDir, this.booksDir]) {
+      const filePath = path.resolve(
+        this.vault,
+        dir,
+        sourceName,
+        `${String(blockNum).padStart(2, '0')}.md`,
+      );
 
-    try {
-      const content = await fs.readFile(filePath, 'utf-8');
-      const conceptsMatch = content.match(/## Concepts\s*\n(.*?)(?:\n##|\Z)/s);
-      if (!conceptsMatch) return new Set();
+      try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        const conceptsMatch = content.match(/## Concepts\s*\n(.*?)(?:\n##|\Z)/s);
+        if (!conceptsMatch) continue;
 
-      const concepts = new Set<string>();
-      const linkRegex = /\[\[(.*?)\]\]/g;
-      let match: RegExpExecArray | null;
-      while ((match = linkRegex.exec(conceptsMatch[1])) !== null) {
-        concepts.add(match[1]);
+        const concepts = new Set<string>();
+        const linkRegex = /\[\[(.*?)\]\]/g;
+        let match: RegExpExecArray | null;
+        while ((match = linkRegex.exec(conceptsMatch[1])) !== null) {
+          concepts.add(match[1]);
+        }
+        return concepts;
+      } catch {
+        // Try next directory
       }
-      return concepts;
-    } catch {
-      return new Set();
     }
+    return new Set();
   }
 
   /**
    * Write the global Map of Content.
    */
   async writeGlobalMoc(): Promise<void> {
-    const registry = await RegistryManager.load<Record<string, { books: string[] }>>(
+    const registry = await RegistryManager.load<Record<string, { books?: string[]; sources?: string[] }>>(
       this.conceptRegistryPath,
     );
 

@@ -7,12 +7,12 @@ import { RegistryManager } from '../src/registry-manager.js';
 describe('RegistryManager', () => {
   let tmpDir: string;
   let conceptRegPath: string;
-  let bookRegPath: string;
+  let sourceRegPath: string;
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ebook-ingest-test-'));
     conceptRegPath = path.join(tmpDir, 'concept_registry.json');
-    bookRegPath = path.join(tmpDir, 'books_registry.json');
+    sourceRegPath = path.join(tmpDir, 'sources_registry.json');
   });
 
   afterEach(async () => {
@@ -21,24 +21,24 @@ describe('RegistryManager', () => {
 
   describe('ensure', () => {
     it('creates registry files if they do not exist', async () => {
-      await RegistryManager.ensure(tmpDir, conceptRegPath, bookRegPath);
+      await RegistryManager.ensure(tmpDir, conceptRegPath, sourceRegPath);
 
       const conceptExists = await fs
         .access(conceptRegPath)
         .then(() => true)
         .catch(() => false);
-      const bookExists = await fs
-        .access(bookRegPath)
+      const sourceExists = await fs
+        .access(sourceRegPath)
         .then(() => true)
         .catch(() => false);
 
       expect(conceptExists).toBe(true);
-      expect(bookExists).toBe(true);
+      expect(sourceExists).toBe(true);
     });
 
     it('does not overwrite existing registry files', async () => {
       await fs.writeFile(conceptRegPath, JSON.stringify({ existing: true }), 'utf-8');
-      await RegistryManager.ensure(tmpDir, conceptRegPath, bookRegPath);
+      await RegistryManager.ensure(tmpDir, conceptRegPath, sourceRegPath);
 
       const data = await RegistryManager.load<{ existing: boolean }>(conceptRegPath);
       expect(data.existing).toBe(true);
@@ -55,7 +55,7 @@ describe('RegistryManager', () => {
     });
 
     it('load returns empty object from default empty registry', async () => {
-      await RegistryManager.ensure(tmpDir, conceptRegPath, bookRegPath);
+      await RegistryManager.ensure(tmpDir, conceptRegPath, sourceRegPath);
       const data = await RegistryManager.load(conceptRegPath);
       expect(data).toEqual({});
     });
