@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 
 /**
  * Configuration for the ebook-ingest pipeline.
@@ -29,7 +30,8 @@ export interface EbookIngestConfig {
 
 /**
  * Default configuration.
- * Override by providing a custom config object to the pipeline.
+ * Override by providing a custom config object to the pipeline,
+ * by placing a config file in the current directory, or via --config.
  */
 export const defaultConfig: EbookIngestConfig = {
   vault: "/Users/sergeydaub/work/barmbini/ObsidianVault",
@@ -49,4 +51,125 @@ export const defaultConfig: EbookIngestConfig = {
  */
 export function resolveVaultPath(config: EbookIngestConfig, ...segments: string[]): string {
   return path.resolve(config.vault, ...segments);
+}
+
+// ── Config file auto-discovery ────────────────────────────────────────────
+
+/**
+ * File names searched (in order) when looking for a config file
+ * in the current working directory.
+ */
+export const CONFIG_SEARCH_NAMES = [
+  '.ebook-ingestrc',
+  '.ebook-ingestrc.json',
+  '.ebook-ingest.json',
+  'ebook-ingest.config.json',
+] as const;
+
+/**
+ * Check whether a value is a plain object (not null, array, Date, …).
+ */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object'
+    && value !== null
+    && !Array.isArray(value)
+    && !(value instanceof Date);
+}
+
+/**
+ * Deep-merge `source` into `target`.
+ * Arrays and scalars from `source` replace those in `target`;
+ * nested plain objects are merged recursively.
+ */
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const result = { ...target };
+
+  for (const key of Object.keys(source)) {
+    const srcVal = source[key];
+    const tgtVal = result[key];
+
+    if (isPlainObject(srcVal) && isPlainObject(tgtVal)) {
+      result[key] = deepMerge(tgtVal, srcVal);
+    } else {
+      result[key] = srcVal;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Search `cwd` for an existing config file.
+ * Returns the absolute path of the first file found, or `null`.
+ */
+export function findConfigFile(
+  cwd: string = process.cwd(),
+): string | null {
+  for (const name of CONFIG_SEARCH_NAMES) {
+    const candidate = path.resolve(cwd, name);
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+/**
+ * Load and merge configuration.
+ *
+ * Resolution order (later overrides earlier):
+ * 1. Built-in defaults (`defaultConfig`)
+ * 2. Auto-discovered config file in `cwd` (`.ebook-ingestrc`, …)
+ * 3. Explicit `configPath` (e.g. from `--config`)
+ *
+ * @param cwd         Directory to search for auto-discovered config files
+ * @param configPath  Optional explicit path to a config JSON file
+ * @returns Fully merged EbookIngestConfig
+ */
+export function loadConfig(
+  cwd: string = process.cwd(),
+  configPath?: string,
+): EbookIngestConfig {
+  let merged: Record<string, unknown> = { ...defaultConfig };
+
+  // 1. Auto-discovered config (always searched, even with explicit path)
+  const autoPath = findConfigFile(cwd);
+  if (autoPath) {
+    try {
+      const raw = fs.readFileSync(autoPath, 'utf-8');
+      const parsed: unknown = JSON.parse(raw);
+      if (isPlainObject(parsed)) {
+        merged = deepMerge(merged, parsed);
+      }
+    } catch (err) {
+      console.warn(
+        `[CONFIG] Failed to parse auto-discovered config "${autoPath}": ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
+
+  // 2. Explicit --config path
+  if (configPath) {
+    const resolved = path.resolve(cwd, configPath);
+    try {
+      const raw = fs.readFileSync(resolved, 'utf-8');
+      const parsed: unknown = JSON.parse(raw);
+      if (isPlainObject(parsed)) {
+        merged = deepMerge(merged, parsed);
+      }
+    } catch (err) {
+      console.warn(
+        `[CONFIG] Failed to parse explicit config "${resolved}": ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
+
+  return merged as unknown as EbookIngestConfig;
 }

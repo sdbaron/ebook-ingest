@@ -1,4 +1,4 @@
-export { defaultConfig, EbookIngestConfig, resolveVaultPath } from './config.js';
+export { defaultConfig, EbookIngestConfig, resolveVaultPath, loadConfig, findConfigFile, CONFIG_SEARCH_NAMES } from './config.js';
 export { EpubExtractor } from './epub-extractor.js';
 export { PdfExtractor } from './pdf-extractor.js';
 export { HtmlExtractor } from './html-extractor.js';

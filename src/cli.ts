@@ -1,4 +1,4 @@
-import { defaultConfig, EbookIngestConfig } from './config.js';
+import { loadConfig, EbookIngestConfig } from './config.js';
 import { UniversalExtractor } from './universal-extractor.js';
 import { ConceptMergeEngine } from './concept-merge-engine.js';
 import { WikiPipeline } from './pipeline.js';
@@ -47,7 +47,7 @@ function parseIngestArgs(argv: string[]): {
   sourceName: string;
   project: string;
   resume: boolean;
-  config?: Partial<EbookIngestConfig>;
+  configPath?: string;
 } {
   if (argv.length < 2) {
     printUsage();
@@ -59,28 +59,20 @@ function parseIngestArgs(argv: string[]): {
 
   let project = 'General';
   let resume = false;
-  let configOverride: Partial<EbookIngestConfig> | undefined;
+  let configPath: string | undefined;
 
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--resume' || arg === '-r') {
       resume = true;
     } else if (arg === '--config' && i + 1 < argv.length) {
-      const configPath = argv[++i];
-      import(configPath)
-        .then(mod => {
-          configOverride = mod.default || mod;
-        })
-        .catch(err => {
-          console.error(`Failed to load config file: ${err.message}`);
-          process.exit(1);
-        });
+      configPath = argv[++i];
     } else if (!arg.startsWith('-')) {
       project = arg;
     }
   }
 
-  return { sourcePath, sourceName, project, resume, config: configOverride };
+  return { sourcePath, sourceName, project, resume, configPath };
 }
 
 function parseMigrateArgs(argv: string[]): {
@@ -111,7 +103,7 @@ async function mergeConceptsCommand(argv: string[]): Promise<void> {
     if (arg === '--dry-run') dryRun = true;
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const conceptDir = path.resolve(config.vault, config.conceptsDir);
   const conceptRegPath = path.resolve(config.vault, config.conceptRegistry);
   const sourcesDir = path.resolve(config.vault, config.sourcesDir);
@@ -172,7 +164,7 @@ async function searchCommand(argv: string[]): Promise<void> {
     }
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const vectorStore = new VectorStore();
   const embeddingGenerator = new EmbeddingGenerator();
 
@@ -212,7 +204,7 @@ async function reindexCommand(argv: string[]): Promise<void> {
     }
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const vectorStore = new VectorStore();
   await vectorStore.connect();
 
@@ -248,7 +240,7 @@ async function askCommand(argv: string[]): Promise<void> {
     if (argv[i] === '--style' && i + 1 < argv.length) style = argv[++i];
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const vectorStore = new VectorStore();
   const embeddingGenerator = new EmbeddingGenerator();
   const template = promptTemplates[style] || promptTemplates.default;
@@ -279,7 +271,7 @@ async function chatCommand(argv: string[]): Promise<void> {
     if (argv[i] === '--style' && i + 1 < argv.length) style = argv[++i];
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const vectorStore = new VectorStore();
   const embeddingGenerator = new EmbeddingGenerator();
   const template = promptTemplates[style] || promptTemplates.default;
@@ -299,7 +291,7 @@ async function generateMocsCommand(argv: string[]): Promise<void> {
     }
   }
 
-  const config = defaultConfig;
+  const config = loadConfig();
   const embeddingGenerator = new EmbeddingGenerator();
 
   const conceptsDir = path.resolve(config.vault, config.conceptsDir);
@@ -324,7 +316,7 @@ async function main(): Promise<void> {
   if (args[0] === 'migrate') {
     const migrateArgs = parseMigrateArgs(args.slice(1));
     const config: EbookIngestConfig = {
-      ...defaultConfig,
+      ...loadConfig(),
       ...(migrateArgs.vault ? { vault: migrateArgs.vault } : {}),
     };
     await migrateCommand(config, migrateArgs.dryRun);
@@ -377,10 +369,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const config: EbookIngestConfig = {
-    ...defaultConfig,
-    ...ingestArgs.config,
-  };
+  const config = loadConfig(process.cwd(), ingestArgs.configPath);
 
   const pipeline = new WikiPipeline(config);
   await pipeline.ingest(ingestArgs.sourcePath, ingestArgs.sourceName, ingestArgs.project, ingestArgs.resume);
