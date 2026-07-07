@@ -528,7 +528,7 @@ ebook-ingest search "What is dependency inversion?" [--top 5] [--source "Clean_A
 
 ### Ausgabeformat
 
-```
+```text
 🔍 Search: "What is dependency inversion?"
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

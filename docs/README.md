@@ -61,7 +61,7 @@ Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉
 
 ## Architektur-Zielbild (nach allen Tasks)
 
-```
+```text
 ebook-ingest/
 ├── src/
 │   ├── cli.ts                    # CLI (ingest + migrate)

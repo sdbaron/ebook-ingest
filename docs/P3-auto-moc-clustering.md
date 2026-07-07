@@ -39,7 +39,7 @@ Gesamt: ~8 Stunden
 
 ### Nachher (automatisch)
 
-```
+```text
 Konzepte → Embeddings → Clustering → Auto MOCs:
 
 04_mocs/
@@ -51,7 +51,7 @@ Konzepte → Embeddings → Clustering → Auto MOCs:
 
 ### Clustering-Visualisierung
 
-```
+```text
                     ┌──────────────────┐
                     │ Dependency_Inversion │
                     └───────┬──────────┘
@@ -444,7 +444,7 @@ private async buildOverviewTable(concepts: string[]): Promise<string> {
 
 Eine einfache Text-Visualisierung der Cluster für das Terminal:
 
-```
+```text
 🧠 Concept Clusters (Silhouette: 0.82)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -528,7 +528,7 @@ Options:
 
 ### Ausgabe
 
-```
+```text
 🧠 Auto MOC Generator
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

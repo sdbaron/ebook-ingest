@@ -27,7 +27,7 @@ Gesamt: ~5,5 Stunden
 
 ### Vorher (Book-Modell)
 
-```
+```text
 01_books/
   Clean_Architecture/
     01.md           (type: chapter, book: Clean_Architecture)
@@ -36,7 +36,7 @@ Gesamt: ~5,5 Stunden
 
 ### Nachher (Source-Modell)
 
-```
+```text
 05_sources/
   Clean_Architecture/   (source_type: epub)
     01.md               (type: source_block, source: Clean_Architecture)

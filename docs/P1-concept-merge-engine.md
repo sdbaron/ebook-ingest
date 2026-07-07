@@ -30,7 +30,7 @@ Gesamt: ~9 Stunden
 
 Nach der Analyse mehrerer Quellen entstehen Duplikate im Concept-Graph:
 
-```
+```text
 02_concepts/
 ├── SRP.md                          (aus Clean Architecture)
 ├── Single_Responsibility_Principle.md  (aus Clean Code)
@@ -43,7 +43,7 @@ Nach der Analyse mehrerer Quellen entstehen Duplikate im Concept-Graph:
 
 Eine Engine, die Kandidaten-Paare identifiziert und merging vorschlägt:
 
-```
+```text
 🤖 Concept Merge Engine
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Found 3 potential merge candidates:
@@ -128,7 +128,7 @@ export class ConceptMergeEngine {
 
 ### Beispiel
 
-```
+```text
 "Single Responsibility Principle" → normalize → "Single_Responsibility_Principle"
 "single-responsibility-principle" → normalize → "Single_Responsibility_Principle"
 → MATCH (score: 1.0)
@@ -221,7 +221,7 @@ private findAcronymMatches(concepts: string[]): MergeCandidate[] {
 Für Konzepte, die weder exakt noch per Akronym matchen, aber ähnlich klingen,
 wird das LLM befragt:
 
-```
+```text
 Prompt: "Are these two technical concepts the same thing?
 Answer ONLY with a JSON: {"same": true/false, "confidence": 0.0-1.0}
 
@@ -411,7 +411,7 @@ Optionen:
 
 Zeigt an, was passieren würde:
 
-```
+```text
 🤖 Concept Merge Engine — DRY RUN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -430,7 +430,7 @@ No changes made (dry run).
 
 ### Interaktiver Modus
 
-```
+```text
 Merge [1] SRP → Single_Responsibility_Principle? [Y/n/skip/all]: 
 ```
 

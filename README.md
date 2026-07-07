@@ -157,7 +157,7 @@ pnpm test:watch
 
 ## Projektstruktur
 
-```
+```text
 src/
 ├── cli.ts                   # CLI (ingest, migrate, merge-concepts, search, ask, chat, generate-mocs)
 ├── config.ts                # Konfiguration und Standardwerte

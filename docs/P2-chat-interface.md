@@ -27,7 +27,7 @@ Gesamt: ~9,5 Stunden
 
 ### RAG-Pipeline
 
-```
+```text
 User: "Was ist Dependency Inversion?"
          ↓
    [1] RETRIEVE: Vektorsuche in ChromaDB
@@ -45,7 +45,7 @@ User: "Was ist Dependency Inversion?"
 
 ### Architektur
 
-```
+```text
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │  ChatEngine  │───▶│  VektorStore │───▶│   ChromaDB   │
 │              │    │  (P2)        │    │              │
@@ -374,7 +374,7 @@ class ChatEngine {
 
 ### Slash-Commands im interaktiven Modus
 
-```
+```text
 /clear    – Konversation zurücksetzen
 /history  – Zeige bisherigen Verlauf
 /sources  – Zeige Quellen der letzten Antwort
@@ -410,7 +410,7 @@ ebook-ingest ask "Was ist SRP?" --style concise --top 3 --source "Clean_Architec
 
 ### Interaktiver Chat
 
-```
+```text
 ╔══════════════════════════════════════════════════╗
 ║  🧠 Ask my Vault — Personal Knowledge Chat       ║
 ║  Type /help for commands, /exit to quit          ║
@@ -504,7 +504,7 @@ private extractCitations(
 
 ### Angezeigte Quellen
 
-```
+```text
 📚 Quellen:
   [1] Clean_Architecture/03.md  (Kapitel: Dependency Inversion Principle)
   [2] Clean_Code/05.md          (Kapitel: Inversion of Control)

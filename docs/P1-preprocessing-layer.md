@@ -27,7 +27,7 @@ Gesamt: ~8,5 Stunden
 
 ### Pipeline mit Preprocessing
 
-```
+```text
 EPUB / PDF / FB2 / HTML / URL
          ↓
    UniversalExtractor
@@ -360,7 +360,7 @@ private isRepetitive(text: string): boolean {
 2. Nach der Roh-Extraktion wird `preprocessor.process()` aufgerufen.
 3. Die Statistiken werden geloggt:
 
-```
+```text
 [INFO] PDF extracted: 142 raw blocks
 [PREPROCESS] Headers/footers removed from 140 blocks
 [PREPROCESS] Chapter boundaries detected → 12 chapters

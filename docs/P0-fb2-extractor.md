@@ -460,7 +460,7 @@ const sampleFb2 = path.resolve(fixturesDir, 'sample.fb2');
 
 ### Testfälle `extract`
 
-```
+```text
 describe('extract', () => {
   // Grundfunktion
   it('extracts text blocks from a valid FB2 file')
