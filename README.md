@@ -96,7 +96,41 @@ Die Standardkonfiguration befindet sich in `src/config.ts`:
 
 > **Veraltete Optionen:** `booksDir`, `bookRegistry` existieren weiterhin als `@deprecated`-Aliase.
 
-Du kannst die Konfiguration überschreiben, indem du eine JSON-Konfigurationsdatei erstellst und diese mit der Option `--config` übergibst.
+### Konfigurationsdatei (automatische Erkennung)
+
+Das CLI sucht beim Start **automatisch** nach einer Konfigurationsdatei
+im aktuellen Arbeitsverzeichnis (CWD) — ohne dass `--config` angegeben werden muss.
+
+**Sucherreihenfolge (erste gefundene Datei gewinnt):**
+
+1. `.ebook-ingestrc`
+2. `.ebook-ingestrc.json`
+3. `.ebook-ingest.json`
+4. `ebook-ingest.config.json`
+
+**Merge-Reihenfolge** (spätere Werte überschreiben frühere):
+
+1. Eingebaute Standardwerte (aus `src/config.ts`)
+2. Automatisch gefundene Konfigurationsdatei im CWD
+3. Explizite `--config <pfad>`-Datei
+
+**Beispiel — `.ebook-ingest.json` im Projektordner:**
+
+```json
+{
+  "vault": "D:/mein-obsidian-vault",
+  "model": "mistral:latest"
+}
+```
+
+```bash
+cd D:/mein-projekt
+ebook-ingest ./buch.epub "Clean Code"
+# → Konfiguration wird automatisch aus .ebook-ingest.json geladen
+```
+
+Zusätzlich kann mit `--config <pfad>` eine beliebige JSON-Datei geladen
+werden, die die automatisch gefundene Konfiguration überschreibt.
 
 ## Verwendung
 

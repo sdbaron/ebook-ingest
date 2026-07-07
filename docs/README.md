@@ -16,7 +16,7 @@
 | Concept Registry | ✅ Fertig |
 | Obsidian Writer | ✅ Fertig |
 | Pipeline | ✅ Fertig |
-| CLI (mit --resume, --config) | ✅ Fertig |
+| CLI (mit --resume, --config, Auto-Discovery) | ✅ Fertig |
 | PDF-Extraktion | ✅ Fertig (P0) |
 | HTML/URL-Extraktion | ✅ Fertig (P0) |
 | Universal Extractor | ✅ Fertig (P0) |
@@ -67,7 +67,7 @@ Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉
 ebook-ingest/
 ├── src/
 │   ├── cli.ts                    # CLI (ingest + migrate)
-│   ├── config.ts                 # Zentrale Konfiguration
+│   ├── config.ts                 # Konfiguration + Auto-Discovery
 │   ├── index.ts                  # Public API
 │   │
 │   ├── epub-extractor.ts         # EPUB → Text
