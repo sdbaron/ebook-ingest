@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P1 – Concept Merge Engine
 
 > **Ziel:** Automatische Erkennung und Zusammenführung von Synonym-Konzepten.

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # @tagesberichte/ebook-ingest
 
 **ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, FB2, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und automatisch generierten Maps of Content (MOCs).

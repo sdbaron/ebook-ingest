@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P0 – FB2Extractor (FictionBook 2 Support)
 
 > **Ziel:** Unterstützung für das FictionBook-2-Format (`.fb2`) hinzufügen.

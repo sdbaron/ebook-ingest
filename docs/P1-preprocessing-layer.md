@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P1 – Preprocessing Layer
 
 > **Ziel:** Ein einheitlicher Preprocessing-Layer, der vor der LLM-Analyse Text bereinigt:
@@ -93,7 +95,8 @@ export class TextPreprocessor {
   /**
    * Process raw text blocks and return cleaned blocks.
    */
-  process(blocks: string[], sourceFormat: 'epub' | 'pdf' | 'html' | 'url' | 'fb2'): PreprocessResult;
+  process(blocks: string[],
+   sourceFormat: 'epub' | 'pdf' | 'html' | 'url' | 'fb2'): PreprocessResult;
 
   // Spezifische Methoden
   private removePdfHeadersFooters(blocks: string[]): string[];
@@ -118,6 +121,7 @@ export const defaultPreprocessorOptions: PreprocessorOptions = {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Interface vollständig definiert
 - [ ] Default-Optionen sind sinnvoll
 - [ ] `process()` delegiert je nach `sourceFormat` an die richtigen Methoden
@@ -133,7 +137,8 @@ Diese werden entfernt, bevor der Text ans LLM geht.
 
 ### Ansatz: Längster gemeinsamer Prefix/Suffix
 
-1. Wenn mehrere Seiten-Blöcke vorhanden sind, vergleiche die ersten ~80 Zeichen jeder Seite.
+1. Wenn mehrere Seiten-Blöcke vorhanden sind,
+ vergleiche die ersten ~80 Zeichen jeder Seite.
 2. Finde den längsten gemeinsamen Prefix über alle Seiten.
 3. Wenn dieser Prefix auf >50% der Seiten identisch ist → Header → entfernen.
 4. Gleiche Logik für die letzten ~80 Zeichen (Footer).
@@ -170,6 +175,7 @@ cleaned = cleaned.replace(/seite\s+\d+\s+(von|of)\s+\d+/gi, '');
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Wiederholte Header werden erkannt und entfernt
 - [ ] Seitenzahlen werden entfernt
 - [ ] Einzelseitige PDFs werden nicht verändert
@@ -181,14 +187,18 @@ cleaned = cleaned.replace(/seite\s+\d+\s+(von|of)\s+\d+/gi, '');
 
 ### Aktueller Stand
 
-`HtmlExtractor` entfernt bereits `<script>`, `<style>`, `<nav>`, `<footer>`. Das reicht für einfache Seiten, aber nicht für komplexe Webseiten.
+`HtmlExtractor` entfernt bereits `<script>`, `<style>`, `<nav>`, `<footer>`.
+ Das reicht für einfache Seiten, aber nicht für komplexe Webseiten.
 
 ### Erweiterungen
 
-1. **Zusätzliche Tag-Filter:** `<header>`, `<aside>`, `<form>`, `<noscript>`, `[role="navigation"]`, `[role="banner"]`, `[role="contentinfo"]`
-2. **CSS-Klassen-basierte Filter:** Entferne Elemente mit Klassen wie `sidebar`, `menu`, `comment`, `advertisement`, `cookie`, `popup`
+1. **Zusätzliche Tag-Filter:** `<header>`, `<aside>`, `<form>`,
+ `<noscript>`, `[role="navigation"]`, `[role="banner"]`, `[role="contentinfo"]`
+2. **CSS-Klassen-basierte Filter:** Entferne Elemente mit Klassen wie
+`sidebar`, `menu`, `comment`, `advertisement`, `cookie`, `popup`
 3. **Text-basierte Filter nach Extraktion:**
    - Entferne Zeilen, die typischen Boilerplate-Text enthalten:
+
      ```typescript
      const boilerplatePatterns = [
        /copyright\s*©?\s*\d{4}/i,
@@ -206,6 +216,7 @@ cleaned = cleaned.replace(/seite\s+\d+\s+(von|of)\s+\d+/gi, '');
      ```
 
 ### Akzeptanzkriterien
+
 - [ ] Navigation, Sidebar, Footer werden entfernt
 - [ ] Cookie-Banner werden entfernt
 - [ ] Copyright-Zeilen werden entfernt
@@ -288,6 +299,7 @@ Wenn Kapitel erkannt wurden, werden sie mit einem `chapter_hint`-Index versehen
 kann im Frontmatter gespeichert werden.
 
 ### Akzeptanzkriterien
+
 - [ ] "Chapter 1", "Kapitel 2", "1. Introduction" werden erkannt
 - [ ] Römische Ziffern werden erkannt (IV., X.)
 - [ ] Seitenzahlen werden NICHT als Kapitel erkannt
@@ -343,6 +355,7 @@ private isRepetitive(text: string): boolean {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Blöcke < 200 Zeichen werden verworfen
 - [ ] Code-Blöcke/Tabellen werden erkannt und verworfen
 - [ ] Repetitive Blöcke werden verworfen
@@ -373,7 +386,9 @@ private isRepetitive(text: string): boolean {
 export class UniversalExtractor {
   constructor(private preprocessor?: TextPreprocessor) {}
 
-  static async extract(sourcePath: string, preprocessor?: TextPreprocessor): Promise<ExtractionResult> {
+  static async extract
+  (sourcePath: string, preprocessor?: TextPreprocessor)
+  :Promise<ExtractionResult> {
     const format = UniversalExtractor.detectFormat(sourcePath);
     let blocks: string[];
 
@@ -385,7 +400,8 @@ export class UniversalExtractor {
 
     if (preprocessor) {
       const result = preprocessor.process(blocks, format);
-      console.log(`[PREPROCESS] ${result.stats.originalBlockCount} → ${result.stats.filteredBlockCount} blocks`);
+      console.log(`[PREPROCESS] ${result.stats.originalBlockCount}
+       → ${result.stats.filteredBlockCount} blocks`);
       blocks = result.blocks;
     }
 
@@ -395,6 +411,7 @@ export class UniversalExtractor {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `UniversalExtractor` nutzt den Preprocessor, wenn vorhanden
 - [ ] Ohne Preprocessor funktioniert alles wie bisher
 - [ ] Statistiken werden geloggt
@@ -431,6 +448,7 @@ export const defaultConfig: EbookIngestConfig = {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Preprocessing ist per Default an
 - [ ] `preprocess: false` deaktiviert alle Preprocessing-Schritte
 - [ ] Einzelne Optionen können überschrieben werden
@@ -444,18 +462,21 @@ export const defaultConfig: EbookIngestConfig = {
 ### Testfälle
 
 #### Header/Footer-Entfernung
+
 - [ ] Wiederholter Header über >50% der Seiten wird entfernt
 - [ ] Footer mit Seitenzahl wird entfernt
 - [ ] Kein Header-Footer bei nur 1-2 Seiten
 - [ ] Text zwischen Header und Footer bleibt erhalten
 
 #### Boilerplate-Entfernung
+
 - [ ] Copyright-Zeile wird entfernt
 - [ ] Cookie-Notice wird entfernt
 - [ ] "All rights reserved" wird entfernt
 - [ ] Normaler Text bleibt unverändert
 
 #### Kapitelerkennung
+
 - [ ] "Chapter 1" wird als Kapitel erkannt
 - [ ] "Kapitel 2: Einführung" wird erkannt
 - [ ] "1. Introduction" wird erkannt
@@ -463,12 +484,14 @@ export const defaultConfig: EbookIngestConfig = {
 - [ ] "IV. Results" wird erkannt
 
 #### Qualitätsfilter
+
 - [ ] Block mit 50 Zeichen wird verworfen
 - [ ] Repetitiver Text wird verworfen
 - [ ] Code-Block (<50% Buchstaben) wird verworfen
 - [ ] Normaler Fließtext bleibt erhalten
 
 #### Integration
+
 - [ ] `process()` gibt korrekte Statistiken zurück
 - [ ] PDF-Durchlauf: Headers + Chapters + Quality
 - [ ] HTML-Durchlauf: Boilerplate + Quality
@@ -477,6 +500,7 @@ export const defaultConfig: EbookIngestConfig = {
 ### Testdaten
 
 Erstelle Test-Fixtures:
+
 - `tests/fixtures/pdf_with_headers.txt` (simulierter PDF-Text mit wiederholten Headern)
 - `tests/fixtures/html_with_boilerplate.txt` (simulierter HTML-Text mit Cookie-Banner)
 - `tests/fixtures/multi_chapter_text.txt` (Text mit mehreren Kapitelüberschriften)

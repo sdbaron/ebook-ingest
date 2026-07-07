@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P0 – Source-Modell (statt Book-Modell)
 
 > **Ziel:** Das Datenmodell von "Book" auf "Source" generalisieren. Bücher, PDFs, FB2-Dateien, HTML-Seiten und URLs

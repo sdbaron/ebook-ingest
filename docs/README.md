@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # Roadmap-Übersicht: ebook-ingest
 
 > Abgeleitet aus der ChatGPT-Konversation: Personal Knowledge Engine für Obsidian Vaults.

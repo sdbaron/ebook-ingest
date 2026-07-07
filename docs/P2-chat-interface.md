@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P2 – Chat-Interface ("Ask my Vault")
 
 > **Ziel:** Ein CLI-Chat-Interface, das Fragen auf Basis des gesamten Vault-Inhalts beantwortet.

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P0 – Universal Extractor (EPUB + PDF + FB2 + HTML + URL)
 
 > **Ziel:** Ein einziger, format-agnostischer Extraction-Layer, der EPUB, PDF, FB2, HTML-Dateien und URLs

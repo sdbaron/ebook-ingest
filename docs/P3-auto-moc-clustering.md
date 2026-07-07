@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P3 – Auto MOC Clustering
 
 > **Ziel:** Maps of Content (MOCs) automatisch aus Concept-Embeddings generieren.
@@ -136,6 +138,7 @@ private async buildConceptText(conceptName: string): Promise<string> {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Alle Konzepte im Vault werden vektorisiert
 - [ ] Konzept-Text enthält Definition und Quellen
 - [ ] Fehlende Konzepte werden übersprungen (mit Warnung)
@@ -258,6 +261,7 @@ private findOptimalK(vectors: number[][], maxK: number = 10): number {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] K-Means clustering funktioniert
 - [ ] Anzahl Cluster wird automatisch bestimmt (Elbow-Methode)
 - [ ] `numClusters` manuell überschreibbar
@@ -326,6 +330,7 @@ private fallbackLabel(concepts: string[]): string {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Jedes Cluster bekommt ein Label
 - [ ] LLM-Labels sind aussagekräftig (2-4 Wörter)
 - [ ] Fallback-Labels funktionieren ohne LLM
@@ -431,6 +436,7 @@ private async buildOverviewTable(concepts: string[]): Promise<string> {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Jedes Cluster wird als MOC-Datei geschrieben
 - [ ] MOC enthält Concept-Links und Overview-Tabelle
 - [ ] Dateiname ist safe (keine Sonderzeichen)
@@ -550,6 +556,7 @@ Done! MOC files written to 04_mocs/
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `generate-mocs` läuft ohne Fehler durch
 - [ ] `--clusters 5` erzwingt 5 Cluster
 - [ ] `--dry-run` zeigt Visualisierung ohne zu schreiben

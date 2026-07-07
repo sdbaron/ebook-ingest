@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # P2 – Vektorsuche + Embeddings
 
 > **Ziel:** Kapitel-Blöcke als Embeddings in einer lokalen Vektordatenbank (ChromaDB) speichern
