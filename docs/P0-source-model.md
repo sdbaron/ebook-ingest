@@ -226,7 +226,9 @@ async registerBook(bookName: string, project: string): Promise<void> {
 
 ### Hinweise
 
-- Die `writeChapter`- und `writeBookIndex`-Methoden sollen **nicht gelöscht** werden — sie rufen einfach die neuen Methoden auf. So bleiben bestehende Aufrufe kompatibel.
+- Die `writeChapter`- und `writeBookIndex`-Methoden sollen **nicht gelöscht**
+  werden — sie rufen einfach die neuen Methoden auf.
+  So bleiben bestehende Aufrufe kompatibel.
 - Neue Methoden schreiben nach `05_sources/`, alte nach `01_books/`. Das erlaubt eine sanfte Migration.
 
 ### Akzeptanzkriterien

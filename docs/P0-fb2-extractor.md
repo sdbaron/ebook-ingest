@@ -428,7 +428,8 @@ Die Fixture muss folgende Eigenschaften haben:
 ```
 
 ### Akzeptanzkriterien
-- [ ] Fixture-Datei ist valides XML (prüfbar mit `node -e "import('node:fs').then(fs => console.log(fs.readFileSync('tests/fixtures/sample.fb2', 'utf-8').slice(0,50)))"`)
+- [ ] Fixture-Datei ist valides XML (prüfbar mit
+  `node -e "import('node:fs').then(fs => console.log(fs.readFileSync('tests/fixtures/sample.fb2', 'utf-8').slice(0,50)))"`)
 - [ ] Enthält alle für die Tests benötigten Strukturen
 
 ---

@@ -70,15 +70,21 @@ export class PdfExtractor {
 ### Detaillierte Anforderungen
 
 1. **Datei einlesen:** Nutze `fs.readFileSync` (weil `pdf-parse` Buffer benötigt), dann `pdf-parse`.
-2. **Seitenweise Extraktion:** Iteriere über `pdfRender.page` (die Lib gibt oft eine flache Textstruktur zurück — wir akzeptieren das für v1).
+2. **Seitenweise Extraktion:** Iteriere über `pdfRender.page`
+   (die Lib gibt oft eine flache Textstruktur zurück —
+   wir akzeptieren das für v1).
 3. **Bereinigung:** `cleanText()` entfernt mehrfache Whitespaces, Page-Breaks, und trimmt.
 4. **Minimale Länge:** Blöcke < `minChars` (Default: 300) werden verworfen (leere Seiten, Impressum etc.).
-5. **Fehlerbehandlung:** Bei nicht-textbasierten PDFs (z. B. gescannt) soll eine aussagekräftige Warnung erscheinen, und ein leeres Array zurückgegeben werden (kein Crash).
+5. **Fehlerbehandlung:** Bei nicht-textbasierten PDFs (z. B. gescannt) soll
+   eine aussagekräftige Warnung erscheinen, und ein leeres Array zurückgegeben
+   werden (kein Crash).
 
 ### Hinweise
 
 - `pdf-parse` liefert `{ text: string, numpages: number, ... }`. Der Text enthält `\n\n` zwischen Seiten.
-- Du kannst `text.split(/\n\s*\n/)` nutzen, um grobe Seiten-Trennung zu bekommen, oder — besser — die PDF-Seiten iterieren, falls die Library das unterstützt.
+- Du kannst `text.split(/\n\s*\n/)` nutzen, um grobe Seiten-Trennung zu
+  bekommen, oder — besser — die PDF-Seiten iterieren, falls die Library
+  das unterstützt.
 - **Fallback-Strategie:** Wenn `pdf-parse` bei einer bestimmten PDF-Variante fehlschlägt, logge eine Warnung und gib `[]` zurück.
 
 ### Akzeptanzkriterien
@@ -121,7 +127,9 @@ export class HtmlExtractor {
 
 - Du kannst `cheerio` wiederverwenden (bereits als Dependency vorhanden).
 - Für HTTP-Requests: Nutze die globale `fetch`-API (Node 18+), kein zusätzliches Package nötig.
-- Bei großen HTML-Seiten kann der Text sehr lang sein. `split()` sollte sinnvolle Chunks erzeugen — orientiere dich an natürlichen Satzgrenzen.
+- Bei großen HTML-Seiten kann der Text sehr lang sein.
+  `split()` sollte sinnvolle Chunks erzeugen —
+  orientiere dich an natürlichen Satzgrenzen.
 
 ### Akzeptanzkriterien
 - [ ] Lokale HTML-Datei wird korrekt extrahiert
@@ -168,7 +176,9 @@ export class UniversalExtractor {
    - `http://` oder `https://` → `'url'`
    - Sonst → `Error("Unknown format")`
 
-2. **Delegation:** Rufe je nach Format `EpubExtractor.extract()`, `PdfExtractor.extract()`, `Fb2Extractor.extract()`, oder `HtmlExtractor.extract()` auf.
+2. **Delegation:** Rufe je nach Format `EpubExtractor.extract()`,
+   `PdfExtractor.extract()`, `Fb2Extractor.extract()`, oder
+   `HtmlExtractor.extract()` auf.
 
 3. **Rückgabe:** Einheitliches `ExtractionResult` mit Format-Metadaten.
 
