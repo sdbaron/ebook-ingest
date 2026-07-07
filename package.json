@@ -18,6 +18,7 @@
     "build": "node -e \"const fs=require('node:fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.rmSync('tsconfig.tsbuildinfo',{force:true});\" && tsc -p tsconfig.json",
     "dev": "tsx src/cli.ts",
     "lint:md": "markdownlint-cli2 \"docs/**/*.md\" \"README.md\"",
+    "setup:global": "node scripts/setup-global-ebook-ingest.js",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch"
   },
