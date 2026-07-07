@@ -115,6 +115,7 @@ export class ChatEngine {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `ask()` gibt eine Antwort mit Quellenangaben zurück
 - [ ] `chat()` startet eine interaktive Session
 - [ ] Ohne ChromaDB: Fallback auf reines LLM (ohne Kontext)
@@ -232,6 +233,7 @@ async ask(
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Retrieve findet relevante Dokumente
 - [ ] Prompt enthält Kontext und Frage
 - [ ] Antwort zitiert Quellen mit [1], [2]
@@ -298,6 +300,7 @@ class ChatEngine {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] 3 Prompt-Templates sind definiert
 - [ ] Template kann per CLI-Option gewählt werden
 - [ ] Eigenes Template als JSON-Datei ladbar
@@ -386,6 +389,7 @@ class ChatEngine {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Konversation wird im Speicher behalten
 - [ ] Vorherige Nachrichten werden in den Prompt eingebaut
 - [ ] `/clear` setzt den Verlauf zurück
@@ -458,6 +462,7 @@ if (command === 'chat') {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `ask` beantwortet eine Einzelfrage
 - [ ] `chat` startet interaktiven Modus
 - [ ] Quellen werden angezeigt
@@ -513,6 +518,7 @@ private extractCitations(
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `[1]`, `[2]` in LLM-Antwort werden erkannt
 - [ ] Nur tatsächlich zitierte Quellen werden angezeigt
 - [ ] Quellen enthalten Source-Name und Pfad
@@ -558,6 +564,7 @@ process.stdout.write('\n');
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Antworten erscheinen token-weise (nicht auf einmal)
 - [ ] Benutzer kann mit Ctrl+C abbrechen
 - [ ] Quellen erscheinen erst nach vollständiger Antwort
@@ -572,17 +579,20 @@ process.stdout.write('\n');
 ### Testfälle
 
 #### RAG-Pipeline
+
 - [ ] `ask()` ruft `retrieve()` → `buildPrompt()` → `generate()` auf
 - [ ] Ohne ChromaDB: Fallback-Antwort
 - [ ] Ohne relevante Quellen: "Kann ich nicht beantworten"
 - [ ] Zitate werden korrekt extrahiert
 
 #### Chat History
+
 - [ ] Konversation wird gespeichert
 - [ ] `/clear` setzt Verlauf zurück
 - [ ] Maximale Länge wird eingehalten
 
 #### Prompt-Templates
+
 - [ ] `default`-Template wird verwendet
 - [ ] `academic`-Template produziert ausführlicheren Prompt
 - [ ] `concise`-Template fordert Bullet Points an

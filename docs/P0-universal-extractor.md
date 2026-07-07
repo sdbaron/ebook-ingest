@@ -41,6 +41,7 @@ pnpm add pdf-parse  # PDF-Text-Extraktion (reiner Text, kein OCR)
 OCR (für gescannte PDFs) ist bewusst **nicht** Teil dieser Aufgabe — das käme später optional via `pdf2image` + `tesseract.js`.
 
 ### Akzeptanzkriterien
+
 - [ ] `pnpm install` läuft ohne Fehler
 - [ ] `import pdf from 'pdf-parse'` funktioniert in einer Testdatei
 
@@ -88,6 +89,7 @@ export class PdfExtractor {
 - **Fallback-Strategie:** Wenn `pdf-parse` bei einer bestimmten PDF-Variante fehlschlägt, logge eine Warnung und gib `[]` zurück.
 
 ### Akzeptanzkriterien
+
 - [ ] Text-basierte PDF wird korrekt extrahiert
 - [ ] Leere Seiten (< 300 Zeichen) werden ignoriert
 - [ ] Gescannte PDFs (kein Text-Layer) führen zu einer Warnung, nicht zu einem Crash
@@ -132,6 +134,7 @@ export class HtmlExtractor {
   orientiere dich an natürlichen Satzgrenzen.
 
 ### Akzeptanzkriterien
+
 - [ ] Lokale HTML-Datei wird korrekt extrahiert
 - [ ] URL wird korrekt gefetched und extrahiert
 - [ ] Boilerplate (nav, footer, scripts) ist entfernt
@@ -188,6 +191,7 @@ export class UniversalExtractor {
 - `ExtractionResult.format` hilft dem Pipeline-Code später, den Source-Typ in Frontmatter zu schreiben.
 
 ### Akzeptanzkriterien
+
 - [ ] Alle 5 Formate werden korrekt erkannt
 - [ ] Unbekannte Formate werfen einen Error
 - [ ] `ExtractionResult` enthält Format und Blöcke
@@ -204,6 +208,7 @@ export class UniversalExtractor {
 2. Stelle sicher, dass die Rückgabe-Signatur mit `PdfExtractor` und `HtmlExtractor` kompatibel ist (`Promise<string[]>`).
 
 ### Akzeptanzkriterien
+
 - [ ] `extract(path, 500)` funktioniert wie bisher
 - [ ] `extract(path, 100)` lässt kürzere Kapitel zu
 - [ ] Bestehende Tests laufen weiterhin
@@ -213,6 +218,7 @@ export class UniversalExtractor {
 ## Aufgabe 6: Unit-Tests schreiben
 
 ### Neue Dateien
+
 - `tests/pdf-extractor.test.ts`
 - `tests/html-extractor.test.ts`
 - `tests/universal-extractor.test.ts`
@@ -220,18 +226,21 @@ export class UniversalExtractor {
 ### Testfälle
 
 #### `pdf-extractor.test.ts`
+
 - [ ] Extrahiert Text aus einer validen PDF
 - [ ] Gibt leeres Array bei gescannter PDF (kein Crash)
 - [ ] Filtert Seiten unter `minChars` aus
 - [ ] `cleanText` normalisiert Whitespace
 
 #### `html-extractor.test.ts`
+
 - [ ] Extrahiert Text aus lokaler HTML-Datei
 - [ ] Entfernt `<script>`, `<style>`, `<nav>`, `<footer>`
 - [ ] Splittet in Blöcke ≥ 200 Zeichen
 - [ ] Behandelt HTTP-Fehler (Mock)
 
 #### `universal-extractor.test.ts`
+
 - [ ] Erkennt `.epub` → `'epub'`
 - [ ] Erkennt `.pdf` → `'pdf'`
 - [ ] Erkennt `.html` → `'html'`
@@ -260,6 +269,7 @@ export class UniversalExtractor {
 **Wichtig:** Die Pipeline-Logik (LLM → Writer → Registry) bleibt **identisch**. Nur die Quelle ändert sich.
 
 ### Akzeptanzkriterien
+
 - [ ] `ingest('file.epub', 'Name')` funktioniert wie bisher
 - [ ] `ingest('file.pdf', 'Name')` funktioniert
 - [ ] `ingest('file.html', 'Name')` funktioniert
@@ -282,6 +292,7 @@ export class UniversalExtractor {
 3. Validiere das Format frühzeitig mit `UniversalExtractor.detectFormat()` und gib eine hilfreiche Fehlermeldung bei unbekannten Formaten.
 
 ### Akzeptanzkriterien
+
 - [ ] CLI akzeptiert `.pdf`, `.html`, URLs zusätzlich zu `.epub`
 - [ ] Usage-Text ist aktualisiert
 - [ ] Unbekannte Formate geben eine verständliche Fehlermeldung

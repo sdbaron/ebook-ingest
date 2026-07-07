@@ -114,6 +114,7 @@ export class ConceptMergeEngine {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Interface ist vollständig definiert
 - [ ] `findCandidates()` gibt nach Score sortierte Kandidaten zurück
 - [ ] `merge()` führt die tatsächliche Zusammenführung durch
@@ -164,6 +165,7 @@ private findExactMatches(concepts: string[]): MergeCandidate[] {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Identische Konzepte nach Normalisierung werden erkannt
 - [ ] Score ist 1.0 für exakte Matches
 - [ ] Suggested primary ist der längere/deskriptivere Name
@@ -210,6 +212,7 @@ private findAcronymMatches(concepts: string[]): MergeCandidate[] {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `SRP` ↔ `Single_Responsibility_Principle` wird erkannt
 - [ ] `DIP` ↔ `Dependency_Inversion_Principle` wird erkannt
 - [ ] Falsch-positive werden durch Score < 1.0 markiert
@@ -276,6 +279,7 @@ private filterCandidatePairs(concepts: string[]): [string, string][] {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] LLM-basierte Ähnlichkeit wird für gefilterte Kandidaten-Paare aufgerufen
 - [ ] Nicht alle Paare werden verglichen (Performance)
 - [ ] Score > 0.7 führt zu einem Merge-Vorschlag
@@ -337,6 +341,7 @@ async merge(candidates: MergeCandidate[]): Promise<MergeResult[]> {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Primary-Datei bleibt unverändert (behält ihre Definition)
 - [ ] Alias-Datei wird zu einem Redirect
 - [ ] Registry wird korrekt aktualisiert (Sources zusammengeführt)
@@ -370,6 +375,7 @@ async merge(candidates: MergeCandidate[]): Promise<MergeResult[]> {
 - Wenn ja: Quelle wird zum Primary-Konzept hinzugefügt, kein neuer Eintrag erstellt.
 
 ### Akzeptanzkriterien
+
 - [ ] Registry-Schema unterstützt `aliases` und `merged_from`
 - [ ] `registerConcept` erkennt Aliase und leitet um
 - [ ] Gemergte Konzepte erscheinen nicht in der globalen MOC
@@ -400,6 +406,7 @@ Optionen:
 5. Zusammenfassung ausgeben.
 
 ### Akzeptanzkriterien
+
 - [ ] `merge-concepts` listet alle Kandidaten auf
 - [ ] `--dry-run` zeigt nur an
 - [ ] `--auto` merged ohne Nachfrage
@@ -442,6 +449,7 @@ Merge [1] SRP → Single_Responsibility_Principle? [Y/n/skip/all]:
 - `all` = diesen + alle weiteren mergen
 
 ### Akzeptanzkriterien
+
 - [ ] Dry-Run zeigt alle geplanten Aktionen
 - [ ] Interaktiver Modus hat Y/n/skip/all
 - [ ] Keine Dateien werden bei Dry-Run verändert

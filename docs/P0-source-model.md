@@ -98,6 +98,7 @@ export const defaultConfig: EbookIngestConfig = {
 2. Konstruktor-Parameter um `sourcesDir` erweitern.
 
 ### Akzeptanzkriterien
+
 - [ ] `defaultConfig.sourcesDir` = `"05_sources"`
 - [ ] `defaultConfig.booksDir` existiert weiterhin (deprecated)
 - [ ] `ObsidianWriter` hat Zugriff auf `sourcesDir`
@@ -143,6 +144,7 @@ Neue Felder:
 - `ingested_at`: ISO-8601 Zeitstempel der ersten Ingest
 
 ### Akzeptanzkriterien
+
 - [ ] `defaultConfig.sourceRegistry` = `"99_meta/sources_registry.json"`
 - [ ] Neue Registry-Felder sind definiert
 - [ ] `defaultConfig.bookRegistry` existiert weiterhin (deprecated)
@@ -193,6 +195,7 @@ async registerBook(bookName: string, project: string): Promise<void> {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `registerSource()` akzeptiert `sourceType` und `originalPath`
 - [ ] Concept-Entries nutzen `sources[]` statt `books[]`
 - [ ] Alte `registerBook()`-Methode existiert als deprecated-Wrapper
@@ -232,6 +235,7 @@ async registerBook(bookName: string, project: string): Promise<void> {
 - Neue Methoden schreiben nach `05_sources/`, alte nach `01_books/`. Das erlaubt eine sanfte Migration.
 
 ### Akzeptanzkriterien
+
 - [ ] `writeSourceBlock` schreibt nach `05_sources/{name}/`
 - [ ] `writeSourceIndex` schreibt `index.md` mit `type: source`
 - [ ] Frontmatter enthält `source_type`
@@ -268,6 +272,7 @@ async ingest(
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `ingest('file.epub', 'Name')` funktioniert wie bisher
 - [ ] `ingest('file.pdf', 'Name', 'Project', 'pdf')` funktioniert
 - [ ] Source-Registry wird mit `source_type` gefüllt
@@ -322,6 +327,7 @@ type: concept
 - Concepts verlinken jetzt auf Sources, nicht auf Books
 
 ### Akzeptanzkriterien
+
 - [ ] Alle neuen Blöcke nutzen `type: source_block`
 - [ ] Alle neuen Indizes nutzen `type: source`
 - [ ] Concepts listen `sources` statt `books`
@@ -342,6 +348,7 @@ type: concept
 3. Interne Variablen: `bookName` → `sourceName`, `epubPath` → `sourcePath`.
 
 ### Akzeptanzkriterien
+
 - [ ] `ebook-ingest file.epub "My Book"` funktioniert (auto-detection)
 - [ ] `ebook-ingest file.pdf "My PDF" --type pdf` funktioniert (explizit)
 - [ ] `ebook-ingest https://example.com "Article" --type url` funktioniert
@@ -352,6 +359,7 @@ type: concept
 ## Aufgabe 8: Tests aktualisieren
 
 ### Dateien
+
 - `tests/registry-manager.test.ts`
 - `tests/concept-normalizer.test.ts`
 
@@ -366,6 +374,7 @@ type: concept
 3. Sicherstellen, dass deprecated-Methoden weiterhin getestet werden.
 
 ### Akzeptanzkriterien
+
 - [ ] Alle bestehenden Tests laufen
 - [ ] Neue Tests für `registerSource` sind vorhanden
 - [ ] Deprecated-Methoden werden getestet
@@ -401,6 +410,7 @@ ebook-ingest migrate --vault /path/to/vault [--dry-run]
 - `--dry-run`: Zeigt nur an, was geändert würde, ohne zu schreiben.
 
 ### Akzeptanzkriterien
+
 - [ ] Migration konvertiert alle Felder korrekt
 - [ ] `--dry-run` zeigt Änderungen nur an
 - [ ] Originaldaten bleiben bei `--dry-run` unberührt

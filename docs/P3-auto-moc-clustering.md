@@ -511,6 +511,7 @@ visualizeClusters(clusters: ConceptCluster[]): string {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Cluster werden als ASCII-Boxen dargestellt
 - [ ] Zentrale Konzepte (★) werden hervorgehoben
 - [ ] Große Cluster werden auf max. 8 Konzepte gekürzt
@@ -622,6 +623,7 @@ if (config.autoUpdateMocs) {
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Neue Konzepte werden bestehenden Clustern zugewiesen
 - [ ] Nur neue Konzepte werden neu vektorisiert (nicht alle)
 - [ ] Zu weit entfernte Konzepte werden als "unclustered" markiert
@@ -636,28 +638,33 @@ if (config.autoUpdateMocs) {
 ### Testfälle
 
 #### Clustering
+
 - [ ] K-Means mit 5 Konzepten, 2 Clustern → korrekte Zuordnung
 - [ ] Elbow-Methode findet sinnvolles K
 - [ ] Silhouette-Score zwischen 0 und 1
 - [ ] Weniger als 3 Konzepte → kein Clustering
 
 #### Label-Generierung
+
 - [ ] LLM-Label wird korrekt gesetzt
 - [ ] Fallback-Label ohne LLM
 - [ ] Leeres Cluster → "Empty Group"
 
 #### MOC-Schreiben
+
 - [ ] MOC-Datei wird korrekt geschrieben
 - [ ] Frontmatter enthält alle Felder
 - [ ] Overview-Tabelle enthält Sources
 - [ ] Überschreiben mit Warnung
 
 #### Visualisierung
+
 - [ ] ASCII-Visualisierung enthält alle Cluster
 - [ ] Zentrale Konzepte sind markiert (★)
 - [ ] Große Cluster werden gekürzt
 
 #### Inkrementelles Update
+
 - [ ] Neues Konzept wird korrekt zugewiesen
 - [ ] Weit entferntes Konzept wird als unclustered markiert
 

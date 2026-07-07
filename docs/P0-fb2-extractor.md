@@ -237,6 +237,7 @@ export class Fb2Extractor {
   FB2 nutzt ausschließlich Kleinbuchstaben (`<section>`, nicht `<Section>`).
 
 ### Akzeptanzkriterien
+
 - [ ] UTF-8-kodierte FB2-Datei wird korrekt gelesen und geparst
 - [ ] Jede Top-Level-`<section>` ergibt genau einen Block
 - [ ] Verschachtelte `<section>`-Elemente werden in den Eltern-Block eingebettet
@@ -262,6 +263,7 @@ Die Methode `extract()` gibt im Fehlerfall immer `[]` zurück.
 | Alle Sections unter `minChars` | Kein Warn-Log, leeres Array ist valides Ergebnis |
 
 ### Akzeptanzkriterien
+
 - [ ] Nicht-existente Datei → `[]` + Warnung (kein Crash)
 - [ ] `.fb2.zip`-Datei → `[]` + Hinweis auf manuelles Entpacken
 - [ ] Malformiertes XML → `[]` + Warnung (kein Crash)
@@ -329,6 +331,7 @@ const result = this.preprocessor.process(blocks, preprocessFormat);
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `UniversalExtractor.detectFormat('book.fb2')` → `'fb2'`
 - [ ] `UniversalExtractor.detectFormat('BOOK.FB2')` → `'fb2'` (case-insensitive)
 - [ ] `UniversalExtractor.extract('book.fb2')` delegiert an `Fb2Extractor.extract()`
@@ -348,6 +351,7 @@ export { Fb2Extractor } from './fb2-extractor.js';
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] `import { Fb2Extractor } from '@tagesberichte/ebook-ingest'` funktioniert
 
 ---
@@ -428,6 +432,7 @@ Die Fixture muss folgende Eigenschaften haben:
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Fixture-Datei ist valides XML (prüfbar mit
   `node -e "import('node:fs').then(fs => console.log(fs.readFileSync('tests/fixtures/sample.fb2', 'utf-8').slice(0,50)))"`)
 - [ ] Enthält alle für die Tests benötigten Strukturen
@@ -527,6 +532,7 @@ await fs.unlink(tmpFile); // Aufräumen
 ```
 
 ### Akzeptanzkriterien
+
 - [ ] Alle Tests aus der obigen Liste sind implementiert
 - [ ] `pnpm test` läuft ohne Fehler
 - [ ] Keine `console.warn`-Aufrufe in den Happy-Path-Tests (via `jest.spyOn` prüfbar)

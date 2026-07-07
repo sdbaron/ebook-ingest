@@ -13,6 +13,7 @@ Maps of Content (MOCs).
 ## Features
 
 ### 📥 Extraktion & Preprocessing
+
 - **Universal Extractor** – Unterstützt EPUB, PDF, FB2, HTML-Dateien und URLs über eine einheitliche Schnittstelle.
 - **Text-Preprocessing** – Bereinigt Rohtext vor der LLM-Analyse:
   - Entfernt PDF-Header/Footer und Seitenzahlen
@@ -22,12 +23,14 @@ Maps of Content (MOCs).
 - **Source-Modell** – Einheitliches Datenmodell für alle Quelltypen (`epub`, `pdf`, `html`, `url`, `fb2`).
 
 ### 🧠 LLM-Analyse
+
 - Nutzt ein lokales Ollama-Modell zur Analyse jedes Textblocks:
   - Titel + Zusammenfassung (2–3 Sätze)
   - Extraktion von Schlüsselkonzepten mit Beschreibungen
 - **Concept Merge Engine** – Erkennt und merged Duplikate (Normalisierung, Akronyme, LLM-Ähnlichkeit).
 
 ### 📝 Obsidian-Export
+
 - Source-Blöcke mit YAML-Frontmatter (`type: source_block`, `source_type:`)
 - Source-Index mit Block- und Konzeptübersicht (`type: source`)
 - Konzeptnotizen mit Definitionen und Rückverweisen auf Quellen
@@ -35,6 +38,7 @@ Maps of Content (MOCs).
 - **Resume-Modus** – Überspringt bereits verarbeitete Blöcke
 
 ### 🔍 Vektorsuche & Chat (RAG)
+
 - **ChromaDB-Integration** – Embeddings für alle Textblöcke (Cosine Similarity)
 - **Semantische Suche** – `search`-Befehl über den gesamten Vault
 - **Chat-Interface** – RAG-Pipeline: Retrieve → Augment → Generate
@@ -42,12 +46,14 @@ Maps of Content (MOCs).
 - Interaktiver Chat-Modus mit `/clear`, `/history`
 
 ### 🗂 Auto MOC Clustering
+
 - **K-Means-Clustering** von Konzept-Embeddings
 - Automatische Cluster-Anzahl (Elbow-Methode) + Silhouette-Score
 - LLM-generierte Cluster-Labels
 - Automatisch generierte MOC-Dateien in `04_mocs/`
 
 ### 🔧 Utilities
+
 - **Vault-Migration** – `migrate`-Befehl für v2→v3 (Book→Source-Modell)
 - **Konzept-Normalisierung** – Bereinigt Konzeptnamen für Dateinamen und Wikilinks
 
