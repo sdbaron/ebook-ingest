@@ -1,6 +1,6 @@
 # P0 – Source-Modell (statt Book-Modell)
 
-> **Ziel:** Das Datenmodell von "Book" auf "Source" generalisieren. Bücher, PDFs, HTML-Seiten und URLs
+> **Ziel:** Das Datenmodell von "Book" auf "Source" generalisieren. Bücher, PDFs, FB2-Dateien, HTML-Seiten und URLs
 > werden einheitlich als `Source` behandelt. Die Verzeichnisstruktur und Registry passen sich an.
 
 ---
@@ -136,7 +136,7 @@ export interface EbookIngestConfig {
 ```
 
 Neue Felder:
-- `source_type`: `"epub" | "pdf" | "html" | "url"`
+- `source_type`: `"epub" | "pdf" | "html" | "url" | "fb2"`
 - `original_path`: Ursprünglicher Pfad/URL der Quelle
 - `ingested_at`: ISO-8601 Zeitstempel der ersten Ingest
 

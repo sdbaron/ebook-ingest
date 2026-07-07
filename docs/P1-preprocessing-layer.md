@@ -28,7 +28,7 @@
 ### Pipeline mit Preprocessing
 
 ```
-EPUB / PDF / HTML / URL
+EPUB / PDF / FB2 / HTML / URL
          ↓
    UniversalExtractor
          ↓
@@ -45,13 +45,13 @@ EPUB / PDF / HTML / URL
 
 ### Was der Preprocessor macht
 
-| Schritt | EPUB | PDF | HTML |
-|---|---|---|---|
-| Header/Footer entfernen | — | ✅ | — |
-| Boilerplate entfernen | — | — | ✅ |
-| Kapitelerkennung | — | ✅ | ✅ |
-| Qualitätsfilter | ✅ | ✅ | ✅ |
-| Whitespace normalisieren | ✅ | ✅ | ✅ |
+| Schritt | EPUB | PDF | FB2 | HTML |
+|---|---|---|---|---|
+| Header/Footer entfernen | — | ✅ | — | — |
+| Boilerplate entfernen | — | — | — | ✅ |
+| Kapitelerkennung | — | ✅ | — | ✅ |
+| Qualitätsfilter | ✅ | ✅ | ✅ | ✅ |
+| Whitespace normalisieren | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -93,7 +93,7 @@ export class TextPreprocessor {
   /**
    * Process raw text blocks and return cleaned blocks.
    */
-  process(blocks: string[], sourceFormat: 'epub' | 'pdf' | 'html' | 'url'): PreprocessResult;
+  process(blocks: string[], sourceFormat: 'epub' | 'pdf' | 'html' | 'url' | 'fb2'): PreprocessResult;
 
   // Spezifische Methoden
   private removePdfHeadersFooters(blocks: string[]): string[];

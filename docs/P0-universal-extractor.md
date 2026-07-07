@@ -1,6 +1,6 @@
-# P0 – Universal Extractor (EPUB + PDF + HTML + URL)
+# P0 – Universal Extractor (EPUB + PDF + FB2 + HTML + URL)
 
-> **Ziel:** Ein einziger, format-agnostischer Extraction-Layer, der EPUB, PDF, HTML-Dateien und URLs
+> **Ziel:** Ein einziger, format-agnostischer Extraction-Layer, der EPUB, PDF, FB2, HTML-Dateien und URLs
 > in einheitliche Text-Blöcke (`string[]`) umwandelt. Der restliche Pipeline-Code (LLM, Writer, Registry)
 > bleibt **unverändert**.
 
@@ -12,8 +12,9 @@
 |---|---|---|
 | 1 | Projekt-Abhängigkeiten hinzufügen | 15 min |
 | 2 | `PdfExtractor`-Klasse implementieren | 1,5 h |
-| 3 | `HtmlExtractor`-Klasse implementieren | 1 h |
-| 4 | `UniversalExtractor`-Factory bauen | 30 min |
+| 3 | `Fb2Extractor`-Klasse implementieren | 1,5 h |
+| 4 | `HtmlExtractor`-Klasse implementieren | 1 h |
+| 5 | `UniversalExtractor`-Factory bauen | 30 min |
 | 5 | `EpubExtractor`-Interface vereinheitlichen | 30 min |
 | 6 | Unit-Tests schreiben | 1,5 h |
 | 7 | Integration in `WikiPipeline` | 1 h |
@@ -136,7 +137,7 @@ export class HtmlExtractor {
 ### Schnittstelle
 
 ```typescript
-export type SourceFormat = 'epub' | 'pdf' | 'html' | 'url';
+export type SourceFormat = 'epub' | 'pdf' | 'html' | 'url' | 'fb2';
 
 export interface ExtractionResult {
   blocks: string[];
@@ -160,11 +161,12 @@ export class UniversalExtractor {
 1. **Format-Erkennung:**
    - `.epub` → `'epub'`
    - `.pdf` → `'pdf'`
+   - `.fb2` → `'fb2'`
    - `.html`, `.htm` → `'html'`
    - `http://` oder `https://` → `'url'`
    - Sonst → `Error("Unknown format")`
 
-2. **Delegation:** Rufe je nach Format `EpubExtractor.extract()`, `PdfExtractor.extract()`, oder `HtmlExtractor.extract()` auf.
+2. **Delegation:** Rufe je nach Format `EpubExtractor.extract()`, `PdfExtractor.extract()`, `Fb2Extractor.extract()`, oder `HtmlExtractor.extract()` auf.
 
 3. **Rückgabe:** Einheitliches `ExtractionResult` mit Format-Metadaten.
 
@@ -174,7 +176,7 @@ export class UniversalExtractor {
 - `ExtractionResult.format` hilft dem Pipeline-Code später, den Source-Typ in Frontmatter zu schreiben.
 
 **Akzeptanzkriterien:**
-- [ ] Alle 4 Formate werden korrekt erkannt
+- [ ] Alle 5 Formate werden korrekt erkannt
 - [ ] Unbekannte Formate werfen einen Error
 - [ ] `ExtractionResult` enthält Format und Blöcke
 
@@ -297,6 +299,7 @@ export class UniversalExtractor {
 | Datei | Aktion |
 |---|---|
 | `src/pdf-extractor.ts` | **Neu** |
+| `src/fb2-extractor.ts` | **Neu** |
 | `src/html-extractor.ts` | **Neu** |
 | `src/universal-extractor.ts` | **Neu** |
 | `src/epub-extractor.ts` | Ändern (minChars-Parameter) |
@@ -305,8 +308,10 @@ export class UniversalExtractor {
 | `src/index.ts` | Ändern (neue Exports) |
 | `package.json` | Ändern (pdf-parse Dependency) |
 | `tests/pdf-extractor.test.ts` | **Neu** |
+| `tests/fb2-extractor.test.ts` | **Neu** |
 | `tests/html-extractor.test.ts` | **Neu** |
 | `tests/universal-extractor.test.ts` | **Neu** |
 | `tests/fixtures/sample.pdf` | **Neu** |
+| `tests/fixtures/sample.fb2` | **Neu** |
 | `tests/fixtures/sample.html` | **Neu** |
 | `README.md` | Ändern |

@@ -39,7 +39,7 @@ function printUsage(): void {
   console.error('MOC options:');
   console.error('  --clusters <n>    Number of clusters (auto-detected if not specified)');
   console.error('');
-  console.error('Supported formats: .epub, .pdf, .html, .htm, http://, https://');
+  console.error('Supported formats: .epub, .pdf, .fb2, .html, .htm, http://, https://');
 }
 
 function parseIngestArgs(argv: string[]): {

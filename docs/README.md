@@ -9,6 +9,7 @@
 | Komponente | Status |
 |---|---|
 | EPUB-Extraktion | ✅ Fertig |
+| FB2-Extraktion | ✅ Fertig (P0) |
 | LLM-Analyse (Ollama) | ✅ Fertig |
 | Concept Registry | ✅ Fertig |
 | Obsidian Writer | ✅ Fertig |

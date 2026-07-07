@@ -1,17 +1,17 @@
 # @tagesberichte/ebook-ingest
 
-**ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und automatisch generierten Maps of Content (MOCs).
+**ebook-ingest** ist ein Tool zum Importieren von Quellen (EPUB, PDF, FB2, HTML, URLs) in eine [Obsidian](https://obsidian.md/)-Wissensdatenbank. Es extrahiert Text aus beliebigen Formaten, bereinigt ihn, analysiert ihn mit einem lokalen LLM (Ollama) und schreibt strukturierte Notizen in einen Obsidian-Vault — inklusive Zusammenfassungen, Konzeptextraktion, Wikilinks und automatisch generierten Maps of Content (MOCs).
 
 ## Features
 
 ### 📥 Extraktion & Preprocessing
-- **Universal Extractor** – Unterstützt EPUB, PDF, HTML-Dateien und URLs über eine einheitliche Schnittstelle.
+- **Universal Extractor** – Unterstützt EPUB, PDF, FB2, HTML-Dateien und URLs über eine einheitliche Schnittstelle.
 - **Text-Preprocessing** – Bereinigt Rohtext vor der LLM-Analyse:
   - Entfernt PDF-Header/Footer und Seitenzahlen
   - Filtert HTML-Boilerplate (Navigation, Cookie-Banner, Copyright)
   - Erkennt Kapitelgrenzen („Chapter 1", „1. Introduction", „IV. Methodology")
   - Qualitätsfilter: Mindestlänge, Buchstabenanteil, Wiederholungserkennung
-- **Source-Modell** – Einheitliches Datenmodell für alle Quelltypen (`epub`, `pdf`, `html`, `url`).
+- **Source-Modell** – Einheitliches Datenmodell für alle Quelltypen (`epub`, `pdf`, `html`, `url`, `fb2`).
 
 ### 🧠 LLM-Analyse
 - Nutzt ein lokales Ollama-Modell zur Analyse jedes Textblocks:
@@ -102,7 +102,7 @@ node dist/cli.js <quelle> <quellenname> [projekt] [optionen]
 
 | Argument | Beschreibung |
 |---|---|
-| `<quelle>` | Pfad zur Quelldatei (.epub, .pdf, .html) oder URL |
+| `<quelle>` | Pfad zur Quelldatei (.epub, .pdf, .fb2, .html) oder URL |
 | `<quellenname>` | Name der Quelle (wird als Verzeichnis- und Dateiname verwendet) |
 | `[projekt]` | Projektzuordnung (Standard: `General`) |
 | `--resume`, `-r` | Überspringe bereits verarbeitete Blöcke |
@@ -116,6 +116,9 @@ pnpm dev ./mein-buch.epub "Clean Code"
 
 # PDF importieren
 pnpm dev ./dokument.pdf "Research Paper" "Wissenschaft"
+
+# FB2-Buch importieren
+pnpm dev ./buch.fb2 "FictionBook Title"
 
 # Webseite importieren
 pnpm dev https://example.com/article "Web Article"
