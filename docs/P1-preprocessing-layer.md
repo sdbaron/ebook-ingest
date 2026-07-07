@@ -19,7 +19,7 @@
 | 7 | Konfigurierbarkeit (Preprocessing-Optionen) | 30 min |
 | 8 | Unit-Tests schreiben | 1,5 h |
 
-**Gesamt: ~8,5 Stunden**
+Gesamt: ~8,5 Stunden
 
 ---
 
@@ -117,7 +117,7 @@ export const defaultPreprocessorOptions: PreprocessorOptions = {
 };
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Interface vollständig definiert
 - [ ] Default-Optionen sind sinnvoll
 - [ ] `process()` delegiert je nach `sourceFormat` an die richtigen Methoden
@@ -131,7 +131,7 @@ export const defaultPreprocessorOptions: PreprocessorOptions = {
 PDF-Seiten haben oft wiederkehrende Header (Kapitelname, Autor) und Footer (Seitenzahlen).
 Diese werden entfernt, bevor der Text ans LLM geht.
 
-**Ansatz: Längster gemeinsamer Prefix/Suffix**
+### Ansatz: Längster gemeinsamer Prefix/Suffix
 
 1. Wenn mehrere Seiten-Blöcke vorhanden sind, vergleiche die ersten ~80 Zeichen jeder Seite.
 2. Finde den längsten gemeinsamen Prefix über alle Seiten.
@@ -169,7 +169,7 @@ cleaned = cleaned.replace(/^\d{1,4}\s*$/gm, '');
 cleaned = cleaned.replace(/seite\s+\d+\s+(von|of)\s+\d+/gi, '');
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Wiederholte Header werden erkannt und entfernt
 - [ ] Seitenzahlen werden entfernt
 - [ ] Einzelseitige PDFs werden nicht verändert
@@ -205,7 +205,7 @@ cleaned = cleaned.replace(/seite\s+\d+\s+(von|of)\s+\d+/gi, '');
      ];
      ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Navigation, Sidebar, Footer werden entfernt
 - [ ] Cookie-Banner werden entfernt
 - [ ] Copyright-Zeilen werden entfernt
@@ -287,7 +287,7 @@ Wenn Kapitel erkannt wurden, werden sie mit einem `chapter_hint`-Index versehen
 (z. B. `"Kapitel 3: Dependency Inversion"` → `chapterHint: 3`). Diese Information
 kann im Frontmatter gespeichert werden.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] "Chapter 1", "Kapitel 2", "1. Introduction" werden erkannt
 - [ ] Römische Ziffern werden erkannt (IV., X.)
 - [ ] Seitenzahlen werden NICHT als Kapitel erkannt
@@ -342,7 +342,7 @@ private isRepetitive(text: string): boolean {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Blöcke < 200 Zeichen werden verworfen
 - [ ] Code-Blöcke/Tabellen werden erkannt und verworfen
 - [ ] Repetitive Blöcke werden verworfen
@@ -394,7 +394,7 @@ export class UniversalExtractor {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `UniversalExtractor` nutzt den Preprocessor, wenn vorhanden
 - [ ] Ohne Preprocessor funktioniert alles wie bisher
 - [ ] Statistiken werden geloggt
@@ -430,7 +430,7 @@ export const defaultConfig: EbookIngestConfig = {
 };
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Preprocessing ist per Default an
 - [ ] `preprocess: false` deaktiviert alle Preprocessing-Schritte
 - [ ] Einzelne Optionen können überschrieben werden

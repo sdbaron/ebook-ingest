@@ -21,7 +21,7 @@
 | 8 | CLI erweitern | 30 min |
 | 9 | Manuelles Testen + Doku | 30 min |
 
-**Gesamt: ~7 Stunden**
+Gesamt: ~7 Stunden
 
 ---
 
@@ -38,7 +38,7 @@ pnpm add pdf-parse  # PDF-Text-Extraktion (reiner Text, kein OCR)
 `pdf-parse` ist eine leichtgewichtige Bibliothek, die den Text-Layer von textbasierten PDFs extrahiert.
 OCR (für gescannte PDFs) ist bewusst **nicht** Teil dieser Aufgabe — das käme später optional via `pdf2image` + `tesseract.js`.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `pnpm install` läuft ohne Fehler
 - [ ] `import pdf from 'pdf-parse'` funktioniert in einer Testdatei
 
@@ -79,7 +79,7 @@ export class PdfExtractor {
 - Du kannst `text.split(/\n\s*\n/)` nutzen, um grobe Seiten-Trennung zu bekommen, oder — besser — die PDF-Seiten iterieren, falls die Library das unterstützt.
 - **Fallback-Strategie:** Wenn `pdf-parse` bei einer bestimmten PDF-Variante fehlschlägt, logge eine Warnung und gib `[]` zurück.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Text-basierte PDF wird korrekt extrahiert
 - [ ] Leere Seiten (< 300 Zeichen) werden ignoriert
 - [ ] Gescannte PDFs (kein Text-Layer) führen zu einer Warnung, nicht zu einem Crash
@@ -121,7 +121,7 @@ export class HtmlExtractor {
 - Für HTTP-Requests: Nutze die globale `fetch`-API (Node 18+), kein zusätzliches Package nötig.
 - Bei großen HTML-Seiten kann der Text sehr lang sein. `split()` sollte sinnvolle Chunks erzeugen — orientiere dich an natürlichen Satzgrenzen.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Lokale HTML-Datei wird korrekt extrahiert
 - [ ] URL wird korrekt gefetched und extrahiert
 - [ ] Boilerplate (nav, footer, scripts) ist entfernt
@@ -175,7 +175,7 @@ export class UniversalExtractor {
 - Die Factory ist **bewusst einfach** gehalten. Keine Magie — explizite if/else oder switch.
 - `ExtractionResult.format` hilft dem Pipeline-Code später, den Source-Typ in Frontmatter zu schreiben.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Alle 5 Formate werden korrekt erkannt
 - [ ] Unbekannte Formate werfen einen Error
 - [ ] `ExtractionResult` enthält Format und Blöcke
@@ -191,7 +191,7 @@ export class UniversalExtractor {
 1. Füge einen optionalen `minChars`-Parameter zu `extract()` hinzu (Default: 500).
 2. Stelle sicher, dass die Rückgabe-Signatur mit `PdfExtractor` und `HtmlExtractor` kompatibel ist (`Promise<string[]>`).
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `extract(path, 500)` funktioniert wie bisher
 - [ ] `extract(path, 100)` lässt kürzere Kapitel zu
 - [ ] Bestehende Tests laufen weiterhin
@@ -200,7 +200,7 @@ export class UniversalExtractor {
 
 ## Aufgabe 6: Unit-Tests schreiben
 
-**Neue Dateien:**
+### Neue Dateien
 - `tests/pdf-extractor.test.ts`
 - `tests/html-extractor.test.ts`
 - `tests/universal-extractor.test.ts`
@@ -247,7 +247,7 @@ export class UniversalExtractor {
 
 **Wichtig:** Die Pipeline-Logik (LLM → Writer → Registry) bleibt **identisch**. Nur die Quelle ändert sich.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `ingest('file.epub', 'Name')` funktioniert wie bisher
 - [ ] `ingest('file.pdf', 'Name')` funktioniert
 - [ ] `ingest('file.html', 'Name')` funktioniert
@@ -269,7 +269,7 @@ export class UniversalExtractor {
 2. Entferne den Begriff "epub" aus allen User-facing Messages.
 3. Validiere das Format frühzeitig mit `UniversalExtractor.detectFormat()` und gib eine hilfreiche Fehlermeldung bei unbekannten Formaten.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] CLI akzeptiert `.pdf`, `.html`, URLs zusätzlich zu `.epub`
 - [ ] Usage-Text ist aktualisiert
 - [ ] Unbekannte Formate geben eine verständliche Fehlermeldung

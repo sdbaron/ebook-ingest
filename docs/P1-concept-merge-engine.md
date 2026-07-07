@@ -20,7 +20,7 @@
 | 8 | `--dry-run` und interaktiver Modus | 1 h |
 | 9 | Unit-Tests schreiben | 1,5 h |
 
-**Gesamt: ~9 Stunden**
+Gesamt: ~9 Stunden
 
 ---
 
@@ -111,7 +111,7 @@ export class ConceptMergeEngine {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Interface ist vollständig definiert
 - [ ] `findCandidates()` gibt nach Score sortierte Kandidaten zurück
 - [ ] `merge()` führt die tatsächliche Zusammenführung durch
@@ -161,7 +161,7 @@ private findExactMatches(concepts: string[]): MergeCandidate[] {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Identische Konzepte nach Normalisierung werden erkannt
 - [ ] Score ist 1.0 für exakte Matches
 - [ ] Suggested primary ist der längere/deskriptivere Name
@@ -207,7 +207,7 @@ private findAcronymMatches(concepts: string[]): MergeCandidate[] {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `SRP` ↔ `Single_Responsibility_Principle` wird erkannt
 - [ ] `DIP` ↔ `Dependency_Inversion_Principle` wird erkannt
 - [ ] Falsch-positive werden durch Score < 1.0 markiert
@@ -273,7 +273,7 @@ private filterCandidatePairs(concepts: string[]): [string, string][] {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] LLM-basierte Ähnlichkeit wird für gefilterte Kandidaten-Paare aufgerufen
 - [ ] Nicht alle Paare werden verglichen (Performance)
 - [ ] Score > 0.7 führt zu einem Merge-Vorschlag
@@ -334,7 +334,7 @@ async merge(candidates: MergeCandidate[]): Promise<MergeResult[]> {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Primary-Datei bleibt unverändert (behält ihre Definition)
 - [ ] Alias-Datei wird zu einem Redirect
 - [ ] Registry wird korrekt aktualisiert (Sources zusammengeführt)
@@ -367,7 +367,7 @@ async merge(candidates: MergeCandidate[]): Promise<MergeResult[]> {
 - `KnowledgeStore.registerConcept()` prüft vor dem Anlegen, ob der Name ein Alias eines existierenden Konzepts ist.
 - Wenn ja: Quelle wird zum Primary-Konzept hinzugefügt, kein neuer Eintrag erstellt.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Registry-Schema unterstützt `aliases` und `merged_from`
 - [ ] `registerConcept` erkennt Aliase und leitet um
 - [ ] Gemergte Konzepte erscheinen nicht in der globalen MOC
@@ -397,7 +397,7 @@ Optionen:
 4. `merge()` ausführen.
 5. Zusammenfassung ausgeben.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `merge-concepts` listet alle Kandidaten auf
 - [ ] `--dry-run` zeigt nur an
 - [ ] `--auto` merged ohne Nachfrage
@@ -439,7 +439,7 @@ Merge [1] SRP → Single_Responsibility_Principle? [Y/n/skip/all]:
 - `skip` = diesen + alle weiteren überspringen
 - `all` = diesen + alle weiteren mergen
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Dry-Run zeigt alle geplanten Aktionen
 - [ ] Interaktiver Modus hat Y/n/skip/all
 - [ ] Keine Dateien werden bei Dry-Run verändert

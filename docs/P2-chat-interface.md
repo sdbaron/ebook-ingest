@@ -19,7 +19,7 @@
 | 7 | Streaming-Antworten | 1 h |
 | 8 | Unit-Tests schreiben | 1 h |
 
-**Gesamt: ~9,5 Stunden**
+Gesamt: ~9,5 Stunden
 
 ---
 
@@ -112,7 +112,7 @@ export class ChatEngine {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `ask()` gibt eine Antwort mit Quellenangaben zurück
 - [ ] `chat()` startet eine interaktive Session
 - [ ] Ohne ChromaDB: Fallback auf reines LLM (ohne Kontext)
@@ -229,7 +229,7 @@ async ask(
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Retrieve findet relevante Dokumente
 - [ ] Prompt enthält Kontext und Frage
 - [ ] Antwort zitiert Quellen mit [1], [2]
@@ -295,7 +295,7 @@ class ChatEngine {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] 3 Prompt-Templates sind definiert
 - [ ] Template kann per CLI-Option gewählt werden
 - [ ] Eigenes Template als JSON-Datei ladbar
@@ -383,7 +383,7 @@ class ChatEngine {
 /exit     – Beenden
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Konversation wird im Speicher behalten
 - [ ] Vorherige Nachrichten werden in den Prompt eingebaut
 - [ ] `/clear` setzt den Verlauf zurück
@@ -455,7 +455,7 @@ if (command === 'chat') {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `ask` beantwortet eine Einzelfrage
 - [ ] `chat` startet interaktiven Modus
 - [ ] Quellen werden angezeigt
@@ -510,7 +510,7 @@ private extractCitations(
   [2] Clean_Code/05.md          (Kapitel: Inversion of Control)
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `[1]`, `[2]` in LLM-Antwort werden erkannt
 - [ ] Nur tatsächlich zitierte Quellen werden angezeigt
 - [ ] Quellen enthalten Source-Name und Pfad
@@ -555,7 +555,7 @@ for await (const chunk of await this.generateStream(prompt)) {
 process.stdout.write('\n');
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Antworten erscheinen token-weise (nicht auf einmal)
 - [ ] Benutzer kann mit Ctrl+C abbrechen
 - [ ] Quellen erscheinen erst nach vollständiger Antwort

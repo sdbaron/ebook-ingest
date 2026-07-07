@@ -20,7 +20,7 @@
 | 7 | Test-Fixture `tests/fixtures/sample.fb2` anlegen | 15 min |
 | 8 | Unit-Tests schreiben (`tests/fb2-extractor.test.ts`) | 1,5 h |
 
-**Gesamt: ~6 Stunden**
+Gesamt: ~6 Stunden
 
 ---
 
@@ -234,7 +234,7 @@ export class Fb2Extractor {
 - Achte auf Groß-/Kleinschreibung: Im XML-Modus sind Tags case-sensitiv.
   FB2 nutzt ausschließlich Kleinbuchstaben (`<section>`, nicht `<Section>`).
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] UTF-8-kodierte FB2-Datei wird korrekt gelesen und geparst
 - [ ] Jede Top-Level-`<section>` ergibt genau einen Block
 - [ ] Verschachtelte `<section>`-Elemente werden in den Eltern-Block eingebettet
@@ -259,7 +259,7 @@ Die Methode `extract()` gibt im Fehlerfall immer `[]` zurück.
 | Kein `<body>`-Element | `[WARN] No <body> element found in "…"` → `[]` |
 | Alle Sections unter `minChars` | Kein Warn-Log, leeres Array ist valides Ergebnis |
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Nicht-existente Datei → `[]` + Warnung (kein Crash)
 - [ ] `.fb2.zip`-Datei → `[]` + Hinweis auf manuelles Entpacken
 - [ ] Malformiertes XML → `[]` + Warnung (kein Crash)
@@ -326,7 +326,7 @@ const preprocessFormat = format === 'fb2' ? 'epub' : format;
 const result = this.preprocessor.process(blocks, preprocessFormat);
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `UniversalExtractor.detectFormat('book.fb2')` → `'fb2'`
 - [ ] `UniversalExtractor.detectFormat('BOOK.FB2')` → `'fb2'` (case-insensitive)
 - [ ] `UniversalExtractor.extract('book.fb2')` delegiert an `Fb2Extractor.extract()`
@@ -345,7 +345,7 @@ Einfügen **nach** dem `HtmlExtractor`-Export:
 export { Fb2Extractor } from './fb2-extractor.js';
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `import { Fb2Extractor } from '@tagesberichte/ebook-ingest'` funktioniert
 
 ---
@@ -425,7 +425,7 @@ Die Fixture muss folgende Eigenschaften haben:
 </FictionBook>
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Fixture-Datei ist valides XML (prüfbar mit `node -e "import('node:fs').then(fs => console.log(fs.readFileSync('tests/fixtures/sample.fb2', 'utf-8').slice(0,50)))"`)
 - [ ] Enthält alle für die Tests benötigten Strukturen
 
@@ -523,7 +523,7 @@ expect(result).toEqual([]);
 await fs.unlink(tmpFile); // Aufräumen
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Alle Tests aus der obigen Liste sind implementiert
 - [ ] `pnpm test` läuft ohne Fehler
 - [ ] Keine `console.warn`-Aufrufe in den Happy-Path-Tests (via `jest.spyOn` prüfbar)

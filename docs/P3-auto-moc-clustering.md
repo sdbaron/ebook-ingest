@@ -19,7 +19,7 @@
 | 7 | Inkrementelles Update (neue Konzepte) | 1 h |
 | 8 | Unit-Tests schreiben | 1 h |
 
-**Gesamt: ~8 Stunden**
+Gesamt: ~8 Stunden
 
 ---
 
@@ -135,7 +135,7 @@ private async buildConceptText(conceptName: string): Promise<string> {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Alle Konzepte im Vault werden vektorisiert
 - [ ] Konzept-Text enthält Definition und Quellen
 - [ ] Fehlende Konzepte werden übersprungen (mit Warnung)
@@ -257,7 +257,7 @@ private findOptimalK(vectors: number[][], maxK: number = 10): number {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] K-Means clustering funktioniert
 - [ ] Anzahl Cluster wird automatisch bestimmt (Elbow-Methode)
 - [ ] `numClusters` manuell überschreibbar
@@ -325,7 +325,7 @@ private fallbackLabel(concepts: string[]): string {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Jedes Cluster bekommt ein Label
 - [ ] LLM-Labels sind aussagekräftig (2-4 Wörter)
 - [ ] Fallback-Labels funktionieren ohne LLM
@@ -430,7 +430,7 @@ private async buildOverviewTable(concepts: string[]): Promise<string> {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Jedes Cluster wird als MOC-Datei geschrieben
 - [ ] MOC enthält Concept-Links und Overview-Tabelle
 - [ ] Dateiname ist safe (keine Sonderzeichen)
@@ -504,7 +504,7 @@ visualizeClusters(clusters: ConceptCluster[]): string {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Cluster werden als ASCII-Boxen dargestellt
 - [ ] Zentrale Konzepte (★) werden hervorgehoben
 - [ ] Große Cluster werden auf max. 8 Konzepte gekürzt
@@ -549,7 +549,7 @@ Options:
 Done! MOC files written to 04_mocs/
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `generate-mocs` läuft ohne Fehler durch
 - [ ] `--clusters 5` erzwingt 5 Cluster
 - [ ] `--dry-run` zeigt Visualisierung ohne zu schreiben
@@ -614,7 +614,7 @@ if (config.autoUpdateMocs) {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Neue Konzepte werden bestehenden Clustern zugewiesen
 - [ ] Nur neue Konzepte werden neu vektorisiert (nicht alle)
 - [ ] Zu weit entfernte Konzepte werden als "unclustered" markiert

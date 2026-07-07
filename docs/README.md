@@ -55,7 +55,7 @@ graph TD
 | 🟢 **P2** | Chat-Interface | ~9,5 h | ✅ Fertig |
 | 🔵 **P3** | Auto MOC Clustering | ~8 h | ✅ Fertig |
 
-**Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉**
+Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉
 
 ---
 

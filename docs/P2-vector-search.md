@@ -19,7 +19,7 @@
 | 8 | CLI-Befehl `search` bauen | 1 h |
 | 9 | Unit-Tests schreiben | 1,5 h |
 
-**Gesamt: ~9 Stunden**
+Gesamt: ~9 Stunden
 
 ---
 
@@ -64,7 +64,7 @@ pnpm add chromadb chromadb-default-embed
 
 **Hinweis:** `chromadb` benötigt Node ≥ 18.
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `pnpm install` läuft ohne Fehler
 - [ ] `import { ChromaClient } from 'chromadb'` funktioniert
 
@@ -161,7 +161,7 @@ export class EmbeddingGenerator {
 - Für Bücher mit 50+ Kapiteln: Batch-Processing mit Fortschrittsanzeige.
 - Später optional: Parallele Requests (2-3 gleichzeitig).
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `embed()` generiert Embeddings für mehrere Chunks
 - [ ] `embedQuery()` generiert ein einzelnes Embedding
 - [ ] Metadaten werden korrekt zugewiesen
@@ -229,7 +229,7 @@ async getOrCreateCollection() {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Verbindung zu ChromaDB wird hergestellt
 - [ ] Collection wird erstellt, wenn nicht vorhanden
 - [ ] Wenn ChromaDB nicht läuft: keine Crashs, nur Warnung
@@ -315,7 +315,7 @@ function buildDocId(sourceName: string, blockIndex: number): string {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Dokumente werden in ChromaDB gespeichert
 - [ ] Upsert verhindert Duplikate
 - [ ] `query()` gibt relevante Dokumente zurück
@@ -376,7 +376,7 @@ async ingest(
 ebook-ingest file.epub "My Book" --skip-vectors
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] Embeddings werden nach der LLM-Analyse generiert
 - [ ] Embeddings werden in ChromaDB gespeichert
 - [ ] `--skip-vectors` überspringt die Vektorisierung
@@ -443,7 +443,7 @@ async reindex(config: EbookIngestConfig, sourceName?: string): Promise<void> {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `reindex` verarbeitet alle Quellen im Vault
 - [ ] `--source` beschränkt auf eine Quelle
 - [ ] Bestehende Embeddings werden überschrieben (upsert)
@@ -509,7 +509,7 @@ export class KnowledgeSearch {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `search()` gibt semantisch relevante Ergebnisse zurück
 - [ ] `topK` begrenzt die Anzahl der Ergebnisse
 - [ ] `filter` schränkt auf bestimmte Quellen ein
@@ -583,7 +583,7 @@ if (command === 'search') {
 }
 ```
 
-**Akzeptanzkriterien:**
+### Akzeptanzkriterien
 - [ ] `search` gibt formatierte Ergebnisse aus
 - [ ] `--top` begrenzt die Ergebnisse
 - [ ] `--source` filtert nach Quelle
@@ -593,7 +593,7 @@ if (command === 'search') {
 
 ## Aufgabe 9: Unit-Tests schreiben
 
-**Neue Dateien:**
+### Neue Dateien
 - `tests/embedding-generator.test.ts`
 - `tests/vector-store.test.ts`
 
