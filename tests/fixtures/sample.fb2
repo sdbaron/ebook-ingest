@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"
+             xmlns:l="http://www.w3.org/1999/xlink">
+  <description>
+    <title-info>
+      <genre>science</genre>
+      <author>
+        <first-name>Test</first-name>
+        <last-name>Author</last-name>
+      </author>
+      <book-title>Test FB2 Book</book-title>
+      <lang>en</lang>
+    </title-info>
+    <document-info>
+      <date value="2026-01-01">2026-01-01</date>
+      <id>test-fixture-001</id>
+      <version>1.0</version>
+    </document-info>
+  </description>
+
+  <body>
+    <section>
+      <title><p>Chapter 1: Introduction</p></title>
+      <epigraph>
+        <p>This epigraph should not appear in extracted text.</p>
+      </epigraph>
+      <p>This is the first paragraph of Chapter 1. It contains enough text to pass
+         the minimum character threshold. The <emphasis>FB2 extractor</emphasis> should
+         parse this XML correctly and return clean plain text without any tags.</p>
+      <p>This is the second paragraph of Chapter 1. Additional content to ensure the
+         block comfortably exceeds the minimum length requirement for extraction.
+         The <strong>extractor</strong> must handle inline formatting tags transparently.</p>
+    </section>
+
+    <section>
+      <title><p>Chapter 2: Main Content</p></title>
+      <p>This is the main content section of Chapter 2. The extractor should create
+         a separate block for each top-level section in the FictionBook document.
+         Each section becomes one entry in the returned string array.</p>
+      <section>
+        <title><p>Chapter 2.1: Nested Sub-Section</p></title>
+        <p>This nested sub-section should be flattened into the parent Chapter 2 block.
+           The recursive extraction ensures that no content is lost due to nesting.
+           All paragraphs at any depth are included in the parent block text.</p>
+      </section>
+      <image l:href="#cover"/>
+      <p>Final paragraph of Chapter 2 after the nested section and image reference.</p>
+    </section>
+
+    <section>
+      <title><p>Chapter 3: Conclusion</p></title>
+      <p>This concluding chapter brings the test book to an end. It demonstrates
+         that the Fb2Extractor correctly handles multiple top-level sections and
+         converts each one to an individual cleaned text block for the pipeline.</p>
+      <p>The extractor should return exactly three blocks from this fixture: one for
+         each top-level section. Nested sections are merged into their parent block.
+         Epigraphs, annotations, and image references are silently discarded.</p>
+    </section>
+  </body>
+</FictionBook>

@@ -7,7 +7,7 @@ export interface BookEntry {
 
 export interface SourceEntry {
   project: string;
-  source_type: 'epub' | 'pdf' | 'html' | 'url';
+  source_type: 'epub' | 'pdf' | 'html' | 'url' | 'fb2';
   original_path: string;
   ingested_at: string;
 }

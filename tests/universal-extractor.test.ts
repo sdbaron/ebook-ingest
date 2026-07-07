@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
+import { fileURLToPath } from 'node:url';
 import { UniversalExtractor, SourceFormat } from '../src/universal-extractor.js';
 
 describe('UniversalExtractor', () => {
@@ -43,7 +44,7 @@ describe('UniversalExtractor', () => {
   describe('extract', () => {
     it('extracts from HTML fixture', async () => {
       const result = await extractor.extract(
-        new URL('./fixtures/sample.html', import.meta.url).pathname,
+        fileURLToPath(new URL('./fixtures/sample.html', import.meta.url)),
       );
       expect(result.format).toBe('html');
       expect(result.blocks.length).toBeGreaterThan(0);
@@ -52,7 +53,7 @@ describe('UniversalExtractor', () => {
 
     it('returns correct format in ExtractionResult', async () => {
       const result = await extractor.extract(
-        new URL('./fixtures/sample.html', import.meta.url).pathname,
+        fileURLToPath(new URL('./fixtures/sample.html', import.meta.url)),
       );
       expect(result.format).toBe('html');
       expect(Array.isArray(result.blocks)).toBe(true);

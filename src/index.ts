@@ -2,6 +2,7 @@ export { defaultConfig, EbookIngestConfig, resolveVaultPath } from './config.js'
 export { EpubExtractor } from './epub-extractor.js';
 export { PdfExtractor } from './pdf-extractor.js';
 export { HtmlExtractor } from './html-extractor.js';
+export { Fb2Extractor } from './fb2-extractor.js';
 export { UniversalExtractor, SourceFormat, ExtractionResult } from './universal-extractor.js';
 export { TextPreprocessor, PreprocessorOptions, PreprocessResult, PreprocessStats, defaultPreprocessorOptions } from './text-preprocessor.js';
 export { LLMAnalyzer, ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';

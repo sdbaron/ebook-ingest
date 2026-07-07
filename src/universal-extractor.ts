@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { EpubExtractor } from './epub-extractor.js';
+import { Fb2Extractor } from './fb2-extractor.js';
 import { PdfExtractor } from './pdf-extractor.js';
 import { HtmlExtractor } from './html-extractor.js';
 import { TextPreprocessor } from './text-preprocessor.js';
@@ -7,7 +8,7 @@ import { TextPreprocessor } from './text-preprocessor.js';
 /**
  * Supported source formats.
  */
-export type SourceFormat = 'epub' | 'pdf' | 'html' | 'url';
+export type SourceFormat = 'epub' | 'pdf' | 'html' | 'url' | 'fb2';
 
 /**
  * Unified result from any extractor.
@@ -58,11 +59,16 @@ export class UniversalExtractor {
       case 'url':
         blocks = await HtmlExtractor.extract(sourcePath, minChars);
         break;
+      case 'fb2':
+        blocks = await Fb2Extractor.extract(sourcePath, minChars);
+        break;
     }
 
-    // Apply preprocessing if configured
+    // Apply preprocessing if configured.
+    // FB2 is clean structured XML — use 'epub' preprocessing mode as fallback.
     if (this.preprocessor) {
-      const result = this.preprocessor.process(blocks, format);
+      const preprocessFormat = format === 'fb2' ? 'epub' : format;
+      const result = this.preprocessor.process(blocks, preprocessFormat);
       console.log(
         `[PREPROCESS] ${result.stats.originalBlockCount} → ${result.stats.filteredBlockCount} blocks ` +
         `(format: ${format})`,
@@ -84,12 +90,13 @@ export class UniversalExtractor {
 
     if (ext === '.epub') return 'epub';
     if (ext === '.pdf') return 'pdf';
+    if (ext === '.fb2') return 'fb2';
     if (ext === '.html' || ext === '.htm') return 'html';
     if (lower.startsWith('http://') || lower.startsWith('https://')) return 'url';
 
     throw new Error(
       `Unknown format for "${sourcePath}". ` +
-      `Supported formats: .epub, .pdf, .html, .htm, http://, https://`,
+      `Supported formats: .epub, .pdf, .html, .htm, .fb2, http://, https://`,
     );
   }
 }
