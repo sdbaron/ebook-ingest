@@ -9,7 +9,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `TextPreprocessor`-Klasse entwerfen | 45 min |
 | 2 | PDF-Header/Footer-Erkennung und -Entfernung | 1,5 h |
 | 3 | HTML-Boilerplate-Remover verbessern | 1 h |
@@ -46,7 +46,7 @@ EPUB / PDF / FB2 / HTML / URL
 ### Was der Preprocessor macht
 
 | Schritt | EPUB | PDF | FB2 | HTML |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Header/Footer entfernen | — | ✅ | — | — |
 | Boilerplate entfernen | — | — | — | ✅ |
 | Kapitelerkennung | — | ✅ | — | ✅ |
@@ -486,7 +486,7 @@ Erstelle Test-Fixtures:
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/text-preprocessor.ts` | **Neu** |
 | `src/universal-extractor.ts` | Ändern (Preprocessor integrieren) |
 | `src/config.ts` | Ändern (Preprocessing-Optionen) |

@@ -9,7 +9,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Projekt-Abhängigkeiten hinzufügen | 15 min |
 | 2 | `PdfExtractor`-Klasse implementieren | 1,5 h |
 | 3 | `Fb2Extractor`-Klasse implementieren | 1,5 h |
@@ -297,7 +297,7 @@ export class UniversalExtractor {
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/pdf-extractor.ts` | **Neu** |
 | `src/fb2-extractor.ts` | **Neu** |
 | `src/html-extractor.ts` | **Neu** |

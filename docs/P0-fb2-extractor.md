@@ -10,7 +10,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `Fb2Extractor`-Klasse mit `cleanText` und `extract` implementieren | 1,5 h |
 | 2 | Cheerio im XML-Modus + Namespace-Handling | 30 min |
 | 3 | Section-Extraktion mit Rekursion für verschachtelte `<section>` | 1 h |
@@ -65,7 +65,7 @@ mit dieser Grundstruktur:
 ### Relevante XML-Elemente
 
 | Element | Bedeutung |
-|---|---|
+| --- | --- |
 | `<body>` | Hauptinhalt des Buches (ein oder mehrere) |
 | `<section>` | Kapitel oder Unterkapitel (beliebig tief verschachtelt) |
 | `<title>` | Kapitelüberschrift (enthält `<p>`) |
@@ -251,7 +251,7 @@ Alle Fehler werden als Warnungen geloggt — es wird **nie** eine Exception gewo
 Die Methode `extract()` gibt im Fehlerfall immer `[]` zurück.
 
 | Fehlerfall | Erwartetes Verhalten |
-|---|---|
+| --- | --- |
 | Datei existiert nicht | `[WARN] Cannot read FB2 file "…": ENOENT…` → `[]` |
 | Datei ist leer | `[WARN] No <body> element found in "…"` → `[]` |
 | Malformiertes XML (z. B. unclosed tag) | `[WARN] Failed to parse FB2 XML in "…"` → `[]` |
@@ -451,7 +451,7 @@ const sampleFb2 = path.resolve(fixturesDir, 'sample.fb2');
 ### Testfälle `cleanText`
 
 | Test | Input | Erwarteter Output |
-|---|---|---|
+| --- | --- | --- |
 | Mehrfache Spaces kollabieren | `'hello    world'` | `'hello world'` |
 | Trimmen | `'  hello world  '` | `'hello world'` |
 | Tabs und Newlines | `'hello\n\tworld'` | `'hello world'` |
@@ -533,7 +533,7 @@ await fs.unlink(tmpFile); // Aufräumen
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion | Inhalt |
-|---|---|---|
+| --- | --- | --- |
 | `src/fb2-extractor.ts` | **Neu** | `Fb2Extractor`-Klasse |
 | `src/universal-extractor.ts` | Ändern | `SourceFormat`, `detectFormat`, `switch`, Import |
 | `src/index.ts` | Ändern | Export `Fb2Extractor` |

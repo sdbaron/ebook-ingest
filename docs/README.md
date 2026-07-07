@@ -7,7 +7,7 @@
 ## Status: Ist-Zustand (2026-07-05)
 
 | Komponente | Status |
-|---|---|
+| --- | --- |
 | EPUB-Extraktion | ✅ Fertig |
 | FB2-Extraktion | ✅ Fertig (P0) |
 | LLM-Analyse (Ollama) | ✅ Fertig |
@@ -46,7 +46,7 @@ graph TD
 ## Zeitplan
 
 | Priorität | Feature | Geschätzt | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 🔴 **P0** | Universal Extractor | ~7 h | ✅ Fertig |
 | 🔴 **P0** | Source-Modell | ~5,5 h | ✅ Fertig |
 | 🟡 **P1** | Concept Merge Engine | ~9 h | ✅ Fertig |

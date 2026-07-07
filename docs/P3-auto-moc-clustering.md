@@ -9,7 +9,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Concept-Embeddings generieren | 1 h |
 | 2 | Clustering-Algorithmus implementieren | 1,5 h |
 | 3 | Cluster-Labels via LLM generieren | 1 h |
@@ -362,7 +362,7 @@ silhouette_score: 0.82
 ## Cluster Overview
 
 | Concept | Sources |
-|---|---|
+| --- | --- |
 | Dependency_Inversion | Clean_Architecture, Clean_Code |
 | Single_Responsibility_Principle | Clean_Architecture, Agile_Principles |
 | Coupling | Clean_Code |
@@ -664,7 +664,7 @@ if (config.autoUpdateMocs) {
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/moc-generator.ts` | **Neu** |
 | `src/cli.ts` | Ändern (generate-mocs Befehl) |
 | `src/pipeline.ts` | Ändern (autoUpdateMocs nach Ingestion) |

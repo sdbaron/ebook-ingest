@@ -8,7 +8,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `05_sources/`-Verzeichnis in Config und Writer integrieren | 30 min |
 | 2 | `books_registry.json` → `sources_registry.json` migrieren | 45 min |
 | 3 | `KnowledgeStore` generalisieren | 30 min |
@@ -52,7 +52,7 @@
 ### Schlüsseländerungen
 
 | Alt | Neu |
-|---|---|
+| --- | --- |
 | `01_books/` | `05_sources/` |
 | `type: book` | `type: source` |
 | `type: chapter` | `type: source_block` |
@@ -407,7 +407,7 @@ ebook-ingest migrate --vault /path/to/vault [--dry-run]
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/config.ts` | Ändern (`sourcesDir`, `sourceRegistry`, Deprecations) |
 | `src/knowledge-store.ts` | Ändern (`registerSource`, `ConceptEntry.sources`) |
 | `src/obsidian-writer.ts` | Ändern (neue Source-Methoden, alte als Wrapper) |

@@ -70,7 +70,7 @@ pnpm build
 Die Standardkonfiguration befindet sich in `src/config.ts`:
 
 | Option | Standardwert | Beschreibung |
-|---|---|---|
+| --- | --- | --- |
 | `vault` | `/Users/sergeydaub/work/barmbini/ObsidianVault` | Root-Pfad des Obsidian-Vaults |
 | `sourcesDir` | `05_sources` | Verzeichnis für Source-Notizen |
 | `conceptsDir` | `02_concepts` | Verzeichnis für Konzeptnotizen |
@@ -101,7 +101,7 @@ node dist/cli.js <quelle> <quellenname> [projekt] [optionen]
 ### Argumente
 
 | Argument | Beschreibung |
-|---|---|
+| --- | --- |
 | `<quelle>` | Pfad zur Quelldatei (.epub, .pdf, .fb2, .html) oder URL |
 | `<quellenname>` | Name der Quelle (wird als Verzeichnis- und Dateiname verwendet) |
 | `[projekt]` | Projektzuordnung (Standard: `General`) |

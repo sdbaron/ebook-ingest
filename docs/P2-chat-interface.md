@@ -9,7 +9,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `ChatEngine`-Klasse entwerfen | 1 h |
 | 2 | RAG-Pipeline implementieren (Retrieve → Augment → Generate) | 2 h |
 | 3 | Prompt-Template-System bauen | 1 h |
@@ -610,7 +610,7 @@ jest.mock('ollama', () => ({
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/chat-engine.ts` | **Neu** |
 | `src/prompt-templates.ts` | **Neu** |
 | `src/cli.ts` | Ändern (ask, chat Befehle) |

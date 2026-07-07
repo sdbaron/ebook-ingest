@@ -9,7 +9,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `ConceptMergeEngine`-Klasse entwerfen | 1 h |
 | 2 | Exakte Duplikat-Erkennung implementieren | 30 min |
 | 3 | Normalisierungs-Pipeline bauen | 1 h |
@@ -474,7 +474,7 @@ Merge [1] SRP → Single_Responsibility_Principle? [Y/n/skip/all]:
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/concept-merge-engine.ts` | **Neu** |
 | `src/cli.ts` | Ändern (merge-concepts Subcommand) |
 | `src/knowledge-store.ts` | Ändern (Alias-Erkennung in registerConcept) |

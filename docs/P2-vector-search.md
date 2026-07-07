@@ -8,7 +8,7 @@
 ## Übersicht der Teilaufgaben
 
 | # | Aufgabe | Geschätzte Zeit |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Abhängigkeiten installieren | 15 min |
 | 2 | Embedding-Generator (Ollama-Embeddings) bauen | 1 h |
 | 3 | ChromaDB-Client einrichten | 1 h |
@@ -635,7 +635,7 @@ test('query finds documents', async () => {
 ## Zusammenfassung der neuen/geänderten Dateien
 
 | Datei | Aktion |
-|---|---|
+| --- | --- |
 | `src/embedding-generator.ts` | **Neu** |
 | `src/vector-store.ts` | **Neu** |
 | `src/knowledge-search.ts` | **Neu** |
