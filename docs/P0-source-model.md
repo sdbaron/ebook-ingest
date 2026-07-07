@@ -139,6 +139,7 @@ export interface EbookIngestConfig {
 ```
 
 Neue Felder:
+
 - `source_type`: `"epub" | "pdf" | "html" | "url" | "fb2"`
 - `original_path`: Ursprünglicher Pfad/URL der Quelle
 - `ingested_at`: ISO-8601 Zeitstempel der ersten Ingest
@@ -175,7 +176,7 @@ async registerSource(
 ): Promise<void>
 ```
 
-2. `ConceptEntry.books` → `ConceptEntry.sources`:
+1. `ConceptEntry.books` → `ConceptEntry.sources`:
 
 ```typescript
 interface ConceptEntry {
@@ -183,9 +184,9 @@ interface ConceptEntry {
 }
 ```
 
-3. `registerConcept` nutzt nun `sources` statt `books`.
+1. `registerConcept` nutzt nun `sources` statt `books`.
 
-4. Alte Methoden als deprecated-Wrapper behalten:
+1. Alte Methoden als deprecated-Wrapper behalten:
 
 ```typescript
 /** @deprecated Use registerSource */
@@ -217,6 +218,7 @@ async registerBook(bookName: string, project: string): Promise<void> {
    - `writeChapter()` ruft `writeSourceBlock()` auf
    - `writeBookIndex()` ruft `writeSourceIndex()` auf
 4. **Frontmatter-Update** in den neuen Methoden:
+
    ```yaml
    ---
    type: source_block
@@ -224,7 +226,9 @@ async registerBook(bookName: string, project: string): Promise<void> {
    source_type: epub
    project: SoftwareArchitecture
    ---
+
    ```
+
 5. **`updateConcept()`** nutzt `sources` statt `books` im Mentioned-in-Abschnitt.
 
 ### Hinweise
@@ -341,9 +345,11 @@ type: concept
 ### Änderungen
 
 1. Usage-Text:
-   ```
+
+   ```text
    Usage: ebook-ingest <source> <source_name> [project] [--type epub|pdf|html|url] [--resume|-r]
    ```
+
 2. Neuer Parameter `--type` (optional). Wenn nicht angegeben, wird das Format aus der Dateiendung erkannt.
 3. Interne Variablen: `bookName` → `sourceName`, `epubPath` → `sourcePath`.
 

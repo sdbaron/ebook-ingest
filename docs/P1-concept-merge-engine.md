@@ -295,6 +295,7 @@ Führt die tatsächliche Zusammenführung durch:
 
 1. **Datei behalten:** Die Datei des `suggestedPrimary` bleibt erhalten.
 2. **Datei löschen/umbenennen:** Die Datei des `suggestedAlias` wird zu einer Redirect-Seite:
+
    ```markdown
    ---
    type: concept_redirect
@@ -304,6 +305,7 @@ Führt die tatsächliche Zusammenführung durch:
    
    > This concept has been merged into [[Single_Responsibility_Principle]].
    ```
+
 3. **Registry aktualisieren:**
    - `concept_registry.json`: Eintrag des Alias entfernen, seine `sources` zum Primary hinzufügen.
    - Neues Feld `aliases` zum Primary-Eintrag hinzufügen.
@@ -393,6 +395,7 @@ ebook-ingest merge-concepts [--dry-run] [--auto] [--vault <path>]
 ```
 
 Optionen:
+
 - `--dry-run`: Nur anzeigen, nicht ausführen.
 - `--auto`: Alle Kandidaten mit Score > 0.9 automatisch mergen (kein Prompt).
 - `--vault`: Pfad zum Vault (sonst Default-Config).

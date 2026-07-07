@@ -361,6 +361,7 @@ export { Fb2Extractor } from './fb2-extractor.js';
 **Neue Datei:** `tests/fixtures/sample.fb2`
 
 Die Fixture muss folgende Eigenschaften haben:
+
 - Valides, wohlgeformtes XML (UTF-8)
 - Mindestens 3 Top-Level-`<section>`-Elemente
 - Jede Section hat `≥ 300` Zeichen Text (damit sie den Default-`minChars`-Filter passiert)

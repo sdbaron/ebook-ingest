@@ -122,7 +122,8 @@ export class HtmlExtractor {
 1. **Quellenerkennung:** `source.startsWith('http')` → `fetch()`, sonst `fs.readFile`.
 2. **Boilerplate-Entfernung:** Entferne `<script>`, `<style>`, `<nav>`, `<footer>`, `<header>`, `<aside>` per `cheerio`.
 3. **Text-Extraktion:** `$('body').text()` oder `$.text()`.
-4. **Block-Splitting:** Da HTML oft ein einziger langer Textblock ist, splitte an Satzenden (`. `) und gruppiere in Chunks ≥ `minChars`.
+4. **Block-Splitting:** Da HTML oft ein einziger langer Textblock ist,
+   splitte an Satzenden (`.`) und gruppiere in Chunks ≥ `minChars`.
 5. **Bereinigung:** `cleanText()` identisch zu `EpubExtractor.cleanText()`.
 
 ### Hinweise
@@ -285,11 +286,14 @@ export class UniversalExtractor {
 ### Änderungen
 
 1. Passe die Usage-Message an:
-   ```
+
+   ```text
    Usage: ebook-ingest <source> <source_name> [project] [options]
    ```
+
 2. Entferne den Begriff "epub" aus allen User-facing Messages.
-3. Validiere das Format frühzeitig mit `UniversalExtractor.detectFormat()` und gib eine hilfreiche Fehlermeldung bei unbekannten Formaten.
+3. Validiere das Format frühzeitig mit `UniversalExtractor.detectFormat()` und gib eine
+   hilfreiche Fehlermeldung bei unbekannten Formaten.
 
 ### Akzeptanzkriterien
 
