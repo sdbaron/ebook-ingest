@@ -56,6 +56,9 @@ Maps of Content (MOCs).
 
 - **Vault-Migration** – `migrate`-Befehl für v2→v3 (Book→Source-Modell)
 - **Konzept-Normalisierung** – Bereinigt Konzeptnamen für Dateinamen und Wikilinks
+- **WIKI_CONTENT_STANDARD-Konformität** – Alle erzeugten Notizen
+  erfüllen die Pflicht-Frontmatter-Anforderungen für `wiki-indexer`
+  und MCP-Tools (`wiki_search`, `wiki_get_note`, `wiki_backlinks`)
 
 ## Voraussetzungen
 
@@ -93,6 +96,11 @@ Die Standardkonfiguration befindet sich in `src/config.ts`:
 | `conceptRegistry` | `99_meta/concept_registry.json` | Pfad zur Konzept-Registry |
 | `sourceRegistry` | `99_meta/sources_registry.json` | Pfad zur Source-Registry |
 | `model` | `llama3.2:latest` | Ollama-Modell für die LLM-Analyse |
+| `attachmentsDir` | `06_attachments` | Verzeichnis für extrahierte Bilder |
+| `wikiStandard.enabled` | `true` | WIKI_CONTENT_STANDARD-Frontmatter aktiv |
+| `wikiStandard.defaultOwner` | `unassigned` | Owner-Kürzel für alle Notizen |
+| `wikiStandard.defaultDomain` | `general` | Fallback-Domain |
+| `wikiStandard.blockTypeMapping` | `{ epub: book, pdf: book, … }` | SourceFormat → WikiNoteType |
 
 > **Veraltete Optionen:** `booksDir`, `bookRegistry` existieren weiterhin als `@deprecated`-Aliase.
 
@@ -156,6 +164,18 @@ node dist/cli.js <quelle> <quellenname> [projekt] [optionen]
 | `--resume`, `-r` | Überspringe bereits verarbeitete Blöcke |
 | `--config <pfad>` | Pfad zu einer JSON-Konfigurationsdatei |
 
+### Weitere Kommandos
+
+| Kommando | Beschreibung |
+| --- | --- |
+| `ebook-ingest migrate` | Vault von v2 (Book) nach v3 (Source) migrieren |
+| `ebook-ingest migrate-wiki-standard` | WIKI_CONTENT_STANDARD-Frontmatter in bestehende Notizen nachtragen |
+| `ebook-ingest merge-concepts` | Doppelte Konzepte finden und mergen |
+| `ebook-ingest search` | Semantische Suche über indexierte Inhalte |
+| `ebook-ingest ask` | Einzelfrage via RAG |
+| `ebook-ingest chat` | Interaktiver RAG-Chat |
+| `ebook-ingest generate-mocs` | Maps of Content automatisch generieren |
+
 ### Beispiele
 
 ```bash
@@ -203,12 +223,26 @@ pnpm test
 pnpm test:watch
 ```
 
+## Kompatibilität mit wiki-llm-obsidian
+
+ebook-ingest erzeugt WIKI_CONTENT_STANDARD.md-konforme Frontmatter-Blöcke,
+die vom `packages/wiki-indexer` fehlerfrei indexiert werden und über MCP-Tools
+(`wiki_search`, `wiki_get_note`, `wiki_backlinks`) für Copilot auffindbar sind.
+
+**Hinweis:** Für `html`/`url`-Quellen gibt es im `WIKI_CONTENT_STANDARD.md`-Enum
+noch keinen ideal passenden Wert — ebook-ingest nutzt `pattern` als
+konfigurierbaren Platzhalter. Eine Enum-Erweiterung um `article`/`note`
+liegt als Entscheidung beim `wiki-llm-obsidian`-Projekt.
+
 ## Projektstruktur
 
 ```text
 src/
-├── cli.ts                   # CLI (ingest, migrate, merge-concepts, search, ask, chat, generate-mocs)
-├── config.ts                # Konfiguration und Standardwerte
+├── cli.ts                   # CLI (ingest, migrate, migrate-wiki-standard, merge-concepts, search, ask, chat, generate-mocs)
+├── config.ts                # Konfiguration + Auto-Discovery + wikiStandard
+├── date-utils.ts            # ISO-8601 → YYYY-MM-DD Utilities
+├── source-slug.ts           # kebab-case Namens-Normalisierung
+├── frontmatter-validator.ts # WIKI_CONTENT_STANDARD.md Validator
 ├── concept-normalizer.ts    # Normalisiert Konzeptnamen für Dateinamen
 ├── concept-merge-engine.ts  # Duplikaterkennung & Merging (P1)
 ├── epub-extractor.ts        # EPUB → Text
@@ -225,6 +259,7 @@ src/
 ├── knowledge-store.ts       # Source- + Concept-Registries
 ├── llm-analyzer.ts          # LLM-gestützte Analyse (Ollama)
 ├── migrate-vault.ts         # v2→v3 Migration            (P0)
+├── migrate-wiki-standard.ts # WIKI_CONTENT_STANDARD Migration
 ├── obsidian-writer.ts       # Obsidian-Markdown schreiben
 ├── pipeline.ts              # Haupt-Pipeline
 └── registry-manager.ts      # JSON-Registry-Dateiverwaltung

@@ -22,6 +22,8 @@
 | Universal Extractor | ✅ Fertig (P0) |
 | Source-Modell (Book→Source) | ✅ Fertig (P0) |
 | Vault-Migration (v2→v3) | ✅ Fertig (P0) |
+| Bild-Extraktion (EPUB, FB2) | ✅ Fertig (P1) |
+| WIKI_CONTENT_STANDARD-Konformität | ✅ Fertig (P1) |
 | Preprocessing Layer | ✅ Fertig (P1) |
 | Concept Merging | ✅ Fertig (P1) |
 | Vektorsuche + Embeddings | ✅ Fertig (P2) |
@@ -52,12 +54,14 @@ graph TD
 | 🔴 **P0** | Universal Extractor | ~7 h | ✅ Fertig |
 | 🔴 **P0** | Source-Modell | ~5,5 h | ✅ Fertig |
 | 🟡 **P1** | Concept Merge Engine | ~9 h | ✅ Fertig |
+| 🟡 **P1** | Bild-Extraktion (EPUB, FB2) | ~8,5 h | ✅ Fertig |
+| 🟡 **P1** | WIKI_CONTENT_STANDARD-Konformität | ~9,5 h | ✅ Fertig |
 | 🟡 **P1** | Preprocessing Layer | ~8,5 h | ✅ Fertig |
 | 🟢 **P2** | Vektorsuche + Embeddings | ~9 h | ✅ Fertig |
 | 🟢 **P2** | Chat-Interface | ~9,5 h | ✅ Fertig |
 | 🔵 **P3** | Auto MOC Clustering | ~8 h | ✅ Fertig |
 
-Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉
+Gesamt: ~74,5 h — Alle Features abgeschlossen! 🎉
 
 ---
 
@@ -66,15 +70,22 @@ Gesamt: ~56,5 h — Alle Features abgeschlossen! 🎉
 ```text
 ebook-ingest/
 ├── src/
-│   ├── cli.ts                    # CLI (ingest + migrate)
+│   ├── cli.ts                    # CLI (ingest + migrate + migrate-wiki-standard)
 │   ├── config.ts                 # Konfiguration + Auto-Discovery
 │   ├── index.ts                  # Public API
 │   │
 │   ├── epub-extractor.ts         # EPUB → Text
 │   ├── pdf-extractor.ts          # PDF → Text         ✅ (P0)
+│   ├── fb2-extractor.ts          # FB2 → Text         ✅ (P0)
 │   ├── html-extractor.ts         # HTML/URL → Text    ✅ (P0)
+│   ├── epub-image-extractor.ts   # EPUB → Bilder      ✅ (P1)
+│   ├── fb2-image-extractor.ts    # FB2 → Bilder       ✅ (P1)
+│   ├── image-utils.ts            # Shared Image Help. ✅ (P1)
 │   ├── universal-extractor.ts    # Factory             ✅ (P0)
 │   ├── text-preprocessor.ts      # Cleaning            ✅ (P1)
+│   ├── date-utils.ts             # ISO → YYYY-MM-DD    ✅ (P1)
+│   ├── source-slug.ts            # kebab-case Normal.  ✅ (P1)
+│   ├── frontmatter-validator.ts  # WIKI_STANDARD Valid ✅ (P1)
 │   │
 │   ├── llm-analyzer.ts           # Ollama Analyse
 │   ├── embedding-generator.ts    # Ollama Embeddings   (P2)
@@ -94,6 +105,7 @@ ebook-ingest/
 │   │
 │   ├── pipeline.ts               # Haupt-Pipeline
 │   └── migrate-vault.ts          # v2→v3 Migration     ✅ (P0)
+│   └── migrate-wiki-standard.ts  # WIKI Migration      ✅ (P1)
 │
 └── tests/
     ├── epub-extractor.test.ts
