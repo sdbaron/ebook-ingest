@@ -41,31 +41,55 @@ export class EmbeddingGenerator {
 
   /**
    * Generate embeddings for multiple text chunks.
-   * Processes chunks sequentially to avoid overwhelming Ollama.
+   * Processes chunks sequentially. On token-limit errors, progressively
+   * reduces text length until the embedding succeeds or hits minChars.
    */
   async embed(
     chunks: string[],
     metadatas: EmbeddingResult['metadata'][],
   ): Promise<EmbeddingResult[]> {
     const results: EmbeddingResult[] = [];
+    const MIN_CHARS = 500; // Don't go below this — embedding of <500 chars is meaningless
 
     for (let i = 0; i < chunks.length; i++) {
-      try {
-        const response = await ollama.embeddings({
-          model: this.model,
-          prompt: chunks[i].slice(0, this.maxChars), // Truncate to avoid token limit
-        });
+      let chars = this.maxChars;
+      let embedded = false;
 
-        results.push({
-          text: chunks[i],
-          embedding: response.embedding,
-          metadata: metadatas[i],
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.warn(
-          `[EMBED] Failed to embed chunk ${i + 1}/${chunks.length}: ${message}`,
-        );
+      while (chars >= MIN_CHARS) {
+        try {
+          const prompt = chunks[i].slice(0, chars);
+          const response = await ollama.embeddings({
+            model: this.model,
+            prompt,
+          });
+
+          results.push({
+            text: chunks[i],
+            embedding: response.embedding,
+            metadata: metadatas[i],
+          });
+          embedded = true;
+          break;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          const isContextError =
+            message.includes('context length') ||
+            message.includes('exceeds');
+
+          if (!isContextError || chars <= MIN_CHARS) {
+            console.warn(
+              `[EMBED] Failed to embed chunk ${i + 1}/${chunks.length}: ${message}`,
+            );
+            break;
+          }
+
+          // Reduce and retry
+          chars -= 1000;
+          if (chars < MIN_CHARS) chars = MIN_CHARS;
+        }
+      }
+
+      if (!embedded) {
         // Continue with remaining chunks
       }
     }
