@@ -245,4 +245,55 @@ ${links}
     const filePath = path.resolve(mocDirPath, 'Software Engineering.md');
     await fs.writeFile(filePath, md, 'utf-8');
   }
+
+  // ── Image helpers ───────────────────────────────────────────────────
+
+  /**
+   * Build an Obsidian embed link for an extracted image.
+   *
+   * @returns e.g. "![[06_attachments/clean-architecture/fig-3-1.png]]"
+   */
+  static imageEmbed(
+    attachmentsDir: string,
+    sourceName: string,
+    fileName: string,
+  ): string {
+    return `![[${attachmentsDir}/${sourceName}/${fileName}]]`;
+  }
+
+  /**
+   * Append an `## Images` section to the source index file.
+   * Creates the section only when image embeds are provided.
+   */
+  async appendImagesToSourceIndex(
+    sourceName: string,
+    imageEmbeds: string[],
+  ): Promise<void> {
+    if (imageEmbeds.length === 0) return;
+
+    const indexPath = path.resolve(
+      this.vault,
+      this.sourcesDir,
+      sourceName,
+      'index.md',
+    );
+
+    const section = [
+      '',
+      '## Images',
+      '',
+      ...imageEmbeds,
+      '',
+    ].join('\n');
+
+    try {
+      await fs.appendFile(indexPath, section, 'utf-8');
+    } catch (err) {
+      console.warn(
+        `[WARN] Failed to append images to source index "${sourceName}": ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
 }

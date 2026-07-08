@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { EbookIngestConfig } from './config.js';
 import { UniversalExtractor } from './universal-extractor.js';
+import type { SourceFormat } from './universal-extractor.js';
 import { TextPreprocessor } from './text-preprocessor.js';
 import { LLMAnalyzer, ConceptEntry } from './llm-analyzer.js';
 import { ConceptNormalizer } from './concept-normalizer.js';
@@ -157,6 +158,35 @@ export class WikiPipeline {
 
     await this.writer.writeSourceIndex(sourceName, blocks.length, allConcepts, extractionResult.format);
 
+    // Extract and copy images from the source
+    const attachmentsBase = path.resolve(
+      this.config.vault,
+      this.config.attachmentsDir,
+    );
+    const imageTargetDir = path.join(attachmentsBase, sourceName);
+    const images = await this.extractor.extractImages(
+      sourcePath,
+      imageTargetDir,
+    );
+
+    if (images.length > 0) {
+      console.log(
+        `[IMAGES] Extracted ${images.length} image(s) → ${imageTargetDir}`,
+      );
+      const imageEmbeds = images.map(
+        img =>
+          ObsidianWriter.imageEmbed(
+            this.config.attachmentsDir,
+            sourceName,
+            img.fileName,
+          ),
+      );
+      await this.writer.appendImagesToSourceIndex(
+        sourceName,
+        imageEmbeds,
+      );
+    }
+
     await this.writer.writeGlobalMoc();
 
     // Generate and store embeddings (if ChromaDB is available)
@@ -171,7 +201,7 @@ export class WikiPipeline {
   private async indexVectors(
     sourceName: string,
     blocks: string[],
-    sourceFormat: 'epub' | 'pdf' | 'html' | 'url',
+    sourceFormat: SourceFormat,
   ): Promise<void> {
     await this.vectorStore.connect();
 

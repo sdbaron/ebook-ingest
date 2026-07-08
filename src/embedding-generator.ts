@@ -12,7 +12,7 @@ export interface EmbeddingResult {
   metadata: {
     sourceName: string;
     blockIndex: number;
-    sourceFormat: 'epub' | 'pdf' | 'html' | 'url';
+    sourceFormat: 'epub' | 'pdf' | 'html' | 'url' | 'fb2';
     chapterTitle?: string;
     vaultPath?: string;
   };

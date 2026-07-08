@@ -3,7 +3,25 @@ import { EpubExtractor } from './epub-extractor.js';
 import { Fb2Extractor } from './fb2-extractor.js';
 import { PdfExtractor } from './pdf-extractor.js';
 import { HtmlExtractor } from './html-extractor.js';
+import { EpubImageExtractor } from './epub-image-extractor.js';
+import { Fb2ImageExtractor } from './fb2-image-extractor.js';
 import { TextPreprocessor } from './text-preprocessor.js';
+
+/**
+ * Metadata about a single extracted image.
+ */
+export interface ExtractedImage {
+  /** Original-ID from the source manifest (e.g. "cover.jpg") */
+  originalId: string;
+  /** Sanitized file name in the target directory */
+  fileName: string;
+  /** Absolute path to the copied image file */
+  vaultPath: string;
+  /** MIME type (e.g. "image/png") */
+  mimeType: string;
+  /** File size in bytes */
+  sizeBytes: number;
+}
 
 /**
  * Supported source formats.
@@ -98,5 +116,40 @@ export class UniversalExtractor {
       `Unknown format for "${sourcePath}". ` +
       `Supported formats: .epub, .pdf, .html, .htm, .fb2, http://, https://`,
     );
+  }
+
+  /**
+   * Extract images from a source and copy them to the target directory.
+   *
+   * Supported formats: EPUB (manifest images via getImage), FB2 (base64 <binary>).
+   * PDF and HTML/URL image extraction is planned for a future release.
+   *
+   * @param sourcePath  File path or URL
+   * @param targetDir   Absolute path where image files will be written
+   * @param maxWidth    Optional max width for downscaling (default: 1200)
+   * @returns Array of extracted image metadata
+   */
+  async extractImages(
+    sourcePath: string,
+    targetDir: string,
+    maxWidth?: number,
+  ): Promise<ExtractedImage[]> {
+    const format = UniversalExtractor.detectFormat(sourcePath);
+
+    switch (format) {
+      case 'epub':
+        return EpubImageExtractor.extract(sourcePath, targetDir, maxWidth);
+      case 'fb2':
+        return Fb2ImageExtractor.extract(sourcePath, targetDir, maxWidth);
+      case 'pdf':
+        console.warn('[WARN] PDF image extraction is not supported yet.');
+        return [];
+      case 'html':
+      case 'url':
+        console.warn(
+          '[WARN] HTML/URL image extraction is planned for a future release.',
+        );
+        return [];
+    }
   }
 }

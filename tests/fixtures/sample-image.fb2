@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"
+             xmlns:l="http://www.w3.org/1999/xlink">
+  <description>
+    <title-info>
+      <book-title>Test FB2 With Images</book-title>
+      <lang>en</lang>
+    </title-info>
+  </description>
+  <body>
+    <section>
+      <title><p>Chapter with image</p></title>
+      <p>This chapter references an image: <image l:href="#test-image.png"/></p>
+    </section>
+  </body>
+  <binary id="test-image.png" content-type="image/png">
+    iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk
+    +M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+  </binary>
+</FictionBook>

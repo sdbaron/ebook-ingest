@@ -24,6 +24,8 @@ export interface EbookIngestConfig {
   bookRegistry: string;
   /** Path to the source registry JSON file */
   sourceRegistry: string;
+  /** Directory for copied/extracted images */
+  attachmentsDir: string;
   /** Ollama model to use for LLM analysis */
   model: string;
 }
@@ -43,6 +45,7 @@ export const defaultConfig: EbookIngestConfig = {
   conceptRegistry: "99_meta/concept_registry.json",
   bookRegistry: "99_meta/books_registry.json",
   sourceRegistry: "99_meta/sources_registry.json",
+  attachmentsDir: "06_attachments",
   model: "llama3.2:latest",
 };
 
