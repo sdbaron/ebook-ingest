@@ -14,6 +14,11 @@
   "bin": {
     "ebook-ingest": "./dist/cli.js"
   },
+  "pnpm": {
+    "overrides": {
+      "sharp": "0.35.3"
+    }
+  },
   "scripts": {
     "build": "node -e \"const fs=require('node:fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.rmSync('tsconfig.tsbuildinfo',{force:true});\" && tsc -p tsconfig.json",
     "dev": "tsx src/cli.ts",
