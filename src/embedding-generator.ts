@@ -26,9 +26,17 @@ export interface EmbeddingResult {
  */
 export class EmbeddingGenerator {
   private model: string;
+  private maxChars: number;
 
-  constructor(model: string = 'nomic-embed-text') {
+  /**
+   * @param model     Ollama embedding model name
+   * @param maxChars  Max characters per chunk (default: 4000)
+   *                  nomic-embed-text context is 8192 tokens;
+   *                  4000 chars ≈ 1000 tokens — safe margin.
+   */
+  constructor(model: string = 'nomic-embed-text', maxChars: number = 4000) {
     this.model = model;
+    this.maxChars = maxChars;
   }
 
   /**
@@ -45,7 +53,7 @@ export class EmbeddingGenerator {
       try {
         const response = await ollama.embeddings({
           model: this.model,
-          prompt: chunks[i].slice(0, 8000), // Truncate long texts for embedding
+          prompt: chunks[i].slice(0, this.maxChars), // Truncate to avoid token limit
         });
 
         results.push({
