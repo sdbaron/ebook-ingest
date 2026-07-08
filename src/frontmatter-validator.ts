@@ -84,4 +84,41 @@ export class FrontmatterValidator {
 
     return { valid: errors.length === 0, errors };
   }
+
+  /**
+   * Parse a simple YAML frontmatter string into a Record.
+   * Handles flow arrays like [a, b] and [] correctly.
+   */
+  static parseSimpleYaml(yaml: string): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+
+    for (const line of yaml.split('\n')) {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx === -1) continue;
+
+      const key = line.slice(0, colonIdx).trim();
+      let rawValue = line.slice(colonIdx + 1).trim();
+
+      // Parse YAML flow arrays: [a, b, c] or []
+      if (rawValue.startsWith('[') && rawValue.endsWith(']')) {
+        const inner = rawValue.slice(1, -1).trim();
+        if (inner.length === 0) {
+          result[key] = [];
+        } else {
+          result[key] = inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+        }
+        continue;
+      }
+
+      // Scalar values: strip quotes
+      let value: unknown = rawValue.replace(/^["']|["']$/g, '');
+      if (/^\d+$/.test(value as string)) value = Number(value);
+      if ((value as string).toLowerCase() === 'true') value = true;
+      if ((value as string).toLowerCase() === 'false') value = false;
+
+      result[key] = value;
+    }
+
+    return result;
+  }
 }

@@ -174,18 +174,7 @@ export class WikiPipeline {
         ).readFile(indexPath, 'utf-8');
         const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
         if (fmMatch) {
-          // Quick parse: split into key: value pairs
-          const fm: Record<string, unknown> = {};
-          for (const line of fmMatch[1].split('\n')) {
-            const colonIdx = line.indexOf(':');
-            if (colonIdx === -1) continue;
-            const key = line.slice(0, colonIdx).trim();
-            let value: unknown = line.slice(colonIdx + 1).trim();
-            if (typeof value === 'string') {
-              value = value.replace(/^["']|["']$/g, '');
-            }
-            fm[key] = value;
-          }
+          const fm = FrontmatterValidator.parseSimpleYaml(fmMatch[1]);
           const result = FrontmatterValidator.validate(fm);
           if (!result.valid) {
             console.warn(
