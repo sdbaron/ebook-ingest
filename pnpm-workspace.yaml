@@ -2,6 +2,10 @@ allowBuilds:
   esbuild: true
   zipfile: true
 
+ignoredBuiltDependencies:
+  - protobufjs
+  - sharp
+
 onlyBuiltDependencies:
   - esbuild
   - zipfile

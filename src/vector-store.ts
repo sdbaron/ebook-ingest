@@ -21,6 +21,8 @@ export interface VectorDocument {
  *
  * Manages a collection of embedded text blocks for semantic search.
  * Gracefully degrades if ChromaDB is not available.
+ *
+ * Uses Ollama-generated embeddings (not ChromaDB's default embedding function).
  */
 export class VectorStore {
   private client: ChromaClient;
@@ -38,17 +40,28 @@ export class VectorStore {
 
   /**
    * Connect to ChromaDB and get or create the collection.
+   * Uses createCollection + try/catch to avoid DefaultEmbeddingFunction warnings.
    */
   async connect(): Promise<void> {
     try {
       await this.client.heartbeat();
-      this.collection = await this.client.getOrCreateCollection({
-        name: this.collectionName,
-        metadata: {
-          'hnsw:space': 'cosine',
-          description: 'ebook-ingest knowledge base',
-        },
-      });
+
+      // Try to get existing collection
+      try {
+        this.collection = await this.client.getCollection({
+          name: this.collectionName,
+        });
+      } catch {
+        // Create if it doesn't exist
+        this.collection = await this.client.createCollection({
+          name: this.collectionName,
+          metadata: {
+            'hnsw:space': 'cosine',
+            description: 'ebook-ingest knowledge base',
+          },
+        });
+      }
+
       this.connected = true;
       console.log(`[VECTOR] Connected to ChromaDB (collection: ${this.collectionName})`);
     } catch (err) {
