@@ -1,5 +1,8 @@
 allowBuilds:
   esbuild: true
+  onnxruntime-node: set this to true or false
+  protobufjs: set this to true or false
+  sharp: set this to true or false
   zipfile: true
 
 ignoredBuiltDependencies:
@@ -8,4 +11,7 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - esbuild
+  - onnxruntime-node@1.21.0
+  - protobufjs@7.6.5
+  - sharp@0.34.5
   - zipfile
