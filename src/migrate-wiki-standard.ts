@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { EbookIngestConfig } from './config.js';
-import { toDateOnly, todayDateOnly } from './date-utils.js';
+import { todayDateOnly } from './date-utils.js';
 
 /**
  * Migrate existing vault notes to WIKI_CONTENT_STANDARD.md compliance.
@@ -110,7 +110,16 @@ function patchFrontmatter(
     }
   }
 
-  if (missing.length === 0) return content; // Already compliant
+  if (missing.length === 0) {
+    // All fields present — check if type value is itself invalid
+    const existingType = existingFields.get('type') ?? '';
+    const invalidLegacyTypes = ['source_block', 'source', 'chapter'];
+    if (!invalidLegacyTypes.includes(existingType)) {
+      return content; // Truly compliant
+    }
+    // Fall through: force-repatch the type field
+    missing.push('type');
+  }
 
   // Derive values for missing fields
   const sourceType = existingFields.get('source_type') ?? 'epub';
@@ -125,8 +134,12 @@ function patchFrontmatter(
   if (wikiType === 'source') wikiType = 'index';
   if (isConcept) wikiType = 'concept';
 
-  // Build new frontmatter fields
+  // Build new frontmatter fields; for type, replace existing invalid value
   const newFields: string[] = [];
+  // Rebuild all lines excluding fields we need to patch
+  const preservedLines = fmLines.filter(
+    line => !missing.some(f => line.trimStart().startsWith(`${f}:`)),
+  );
   for (const field of missing) {
     switch (field) {
       case 'title':
@@ -165,8 +178,8 @@ function patchFrontmatter(
     }
   }
 
-  // Insert new fields after existing frontmatter entries, before closing ---
-  const newFmLines = [...fmLines, ...newFields];
+  // Insert new fields after existing (preserved) frontmatter entries
+  const newFmLines = [...preservedLines, ...newFields];
   const rest = content.slice(fmMatch[0].length);
 
   return `---\n${newFmLines.join('\n')}\n---${rest}`;

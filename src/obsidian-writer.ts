@@ -107,6 +107,7 @@ ${links}
     blockCount: number,
     concepts: Set<string>,
     sourceType: string = 'epub',
+    project?: string,
   ): Promise<void> {
     const sourceDir = path.resolve(this.vault, this.sourcesDir, sourceName);
     await fs.mkdir(sourceDir, { recursive: true });
@@ -122,7 +123,9 @@ ${links}
       .join('\n');
 
     const today = new Date().toISOString().slice(0, 10);
-    const domain = this.wikiStandard.defaultDomain;
+    const domain = project
+      ? project.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      : this.wikiStandard.defaultDomain;
 
     const frontmatter = ObsidianWriter.buildFrontmatter({
       title: sourceName,
@@ -294,7 +297,21 @@ ${sourcesSection}
     const mocDirPath = path.resolve(this.vault, this.mocDir);
     await fs.mkdir(mocDirPath, { recursive: true });
 
-    const md = `# Software Engineering
+    const today = new Date().toISOString().slice(0, 10);
+    const frontmatter = ObsidianWriter.buildFrontmatter({
+      title: 'Software Engineering',
+      wikiType: 'index',
+      domain: this.wikiStandard.defaultDomain,
+      owner: this.wikiStandard.defaultOwner,
+      created: today,
+      updated: today,
+      tags: ['moc', this.wikiStandard.defaultDomain],
+      aliases: [],
+    });
+
+    const md = `${frontmatter}
+
+# Software Engineering
 
 ## Concepts
 
@@ -377,11 +394,7 @@ ${links}
     // Extra fields (e.g. source, source_type, project)
     if (input.extra) {
       for (const [key, value] of Object.entries(input.extra)) {
-        if (key === 'project' && !value.startsWith('"')) {
-          lines.push(`${key}: ${q(value)}`);
-        } else {
-          lines.push(`${key}: ${q(value)}`);
-        }
+        lines.push(`${key}: ${q(value)}`);
       }
     }
 

@@ -158,7 +158,7 @@ export class WikiPipeline {
       sourcePath,
     );
 
-    await this.writer.writeSourceIndex(sourceName, blocks.length, allConcepts, extractionResult.format);
+    await this.writer.writeSourceIndex(sourceName, blocks.length, allConcepts, extractionResult.format, project);
 
     // Validate frontmatter against WIKI_CONTENT_STANDARD.md
     if (this.config.wikiStandard.enabled) {
