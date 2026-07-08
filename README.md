@@ -65,8 +65,12 @@ Maps of Content (MOCs).
 - [Node.js](https://nodejs.org/) (≥ 18)
 - [pnpm](https://pnpm.io/)
 - [Ollama](https://ollama.ai/) mit einem heruntergeladenen Chat-Modell (z. B. `llama3.2`)
-- Für Vektorsuche: [ChromaDB](https://www.trychroma.com/) (Docker oder lokale Installation)
+- Für Vektorsuche: [ChromaDB](https://www.trychroma.com/) (Docker oder lokale Installation via `pip install chromadb`)
 - Für Embeddings: Ollama Embedding-Modell (`ollama pull nomic-embed-text`)
+
+> **Hinweis:** Die ChromaDB-Warnung `The 'path' argument is deprecated` ist harmlos und
+> wird vom `chromadb` npm-Client v3.5.0 verursacht. Die Funktionalität ist nicht
+> beeinträchtigt — Embeddings werden direkt via Ollama generiert und an ChromaDB übergeben.
 
 ## Installation
 
@@ -216,7 +220,7 @@ pnpm dev generate-mocs --clusters 5
 ## Tests
 
 ```bash
-# Tests ausführen (103 Tests, 15 Suites)
+# Tests ausführen (159 Tests, 22 Suites)
 pnpm test
 
 # Tests im Watch-Modus
@@ -273,7 +277,13 @@ src/
 4. **LLM-Analyse** – Jeder Block wird an Ollama gesendet, das Titel, Zusammenfassung und Konzepte extrahiert.
 5. **Obsidian-Export** – Source-Blöcke und Konzeptnotizen werden als Markdown in `05_sources/` und `02_concepts/` geschrieben.
 6. **Indizierung** – Source-Index und globaler MOC werden generiert.
-7. **Registrierung** – Quellen und Konzepte werden in JSON-Registries mit Metadaten nachverfolgt.
+7. **Vektorisierung** – Embeddings werden via Ollama (`nomic-embed-text`) generiert und in ChromaDB gespeichert.
+8. **Registrierung** – Quellen und Konzepte werden in JSON-Registries mit Metadaten nachverfolgt.
+
+> **Hinweis:** Die Vektorisierung (Schritt 7) ist optional. Wenn ChromaDB nicht läuft,
+> wird sie automatisch übersprungen — keine Fehler, nur ein Log-Hinweis.
+> Gleiches gilt für das Ollama-Embedding-Modell: Fehlt es, wird eine Warnung ausgegeben,
+> und der Ingest läuft ohne Vektoren weiter.
 
 ## Lizenz
 
