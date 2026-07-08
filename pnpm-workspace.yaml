@@ -7,4 +7,7 @@ allowBuilds:
 
 ignoredBuiltDependencies: []
 
-onlyBuiltDependencies: '["onnxruntime-node","protobufjs","sharp"]'
+onlyBuiltDependencies:
+  - onnxruntime-node
+  - protobufjs
+  - sharp
