@@ -91,8 +91,10 @@ export class FrontmatterValidator {
    */
   static parseSimpleYaml(yaml: string): Record<string, unknown> {
     const result: Record<string, unknown> = {};
+    const lines = yaml.split('\n');
 
-    for (const line of yaml.split('\n')) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       const colonIdx = line.indexOf(':');
       if (colonIdx === -1) continue;
 
@@ -107,6 +109,31 @@ export class FrontmatterValidator {
         } else {
           result[key] = inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
         }
+        continue;
+      }
+
+      // Parse YAML block lists: key with empty value followed by indented - items
+      if (rawValue === '' || rawValue === '|' || rawValue === '>') {
+        // Check if next lines are indented list items (starting with "  -")
+        const items: string[] = [];
+        let j = i + 1;
+        while (j < lines.length) {
+          const nextLine = lines[j];
+          const itemMatch = nextLine.match(/^\s+-\s+(.+)/);
+          if (itemMatch) {
+            items.push(itemMatch[1].trim().replace(/^["']|["']$/g, ''));
+            j++;
+          } else {
+            break;
+          }
+        }
+        if (items.length > 0) {
+          result[key] = items;
+          i = j - 1; // skip consumed lines
+          continue;
+        }
+        // Empty scalar — still set it
+        result[key] = '';
         continue;
       }
 
