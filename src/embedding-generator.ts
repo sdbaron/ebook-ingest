@@ -30,11 +30,11 @@ export class EmbeddingGenerator {
 
   /**
    * @param model     Ollama embedding model name
-   * @param maxChars  Max characters per chunk (default: 4000)
-   *                  nomic-embed-text context is 8192 tokens;
-   *                  4000 chars ≈ 1000 tokens — safe margin.
+   * @param maxChars  Starting max chars per chunk (default: 8000).
+   *                  On context-length errors, automatically reduces
+   *                  by 1000 chars and retries, down to 500.
    */
-  constructor(model: string = 'nomic-embed-text', maxChars: number = 4000) {
+  constructor(model: string = 'nomic-embed-text', maxChars: number = 8000) {
     this.model = model;
     this.maxChars = maxChars;
   }
