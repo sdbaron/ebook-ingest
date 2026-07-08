@@ -285,6 +285,37 @@ src/
 > Gleiches gilt für das Ollama-Embedding-Modell: Fehlt es, wird eine Warnung ausgegeben,
 > und der Ingest läuft ohne Vektoren weiter.
 
+### FAQ: Vektorisierung nachträglich ausführen
+
+**Frage:** Ich habe einen Ingest ohne ChromaDB durchgeführt. Kann ich die Vektorisierung später nachholen?
+
+**Ja — auf zwei Wegen:**
+
+1. **`--resume` (empfohlen):** Starte ChromaDB, installiere das Embedding-Modell, dann führe den Ingest
+   einfach mit `--resume` erneut aus. Bereits verarbeitete Blöcke werden übersprungen, die Vektorisierung
+   wird aber ausgeführt:
+
+   ```bash
+   # ChromaDB starten (falls nicht bereits)
+   chroma run --path ~/chromadb-data
+
+   # Nachträgliche Vektorisierung
+   ebook-ingest ./buch.epub "Clean Architecture" --resume
+   ```
+
+2. **`reindex` + `--resume`:** Löscht zuerst alte Vektoren aus ChromaDB und erzeugt dann neue:
+
+   ```bash
+   ebook-ingest reindex --source "Clean Architecture"
+   ebook-ingest ./buch.epub "Clean Architecture" --resume
+   ```
+
+**Voraussetzung:** Ollama Embedding-Modell `nomic-embed-text` muss installiert sein:
+
+```bash
+ollama pull nomic-embed-text
+```
+
 ## Lizenz
 
 Privat / Intern – @tagesberichte
