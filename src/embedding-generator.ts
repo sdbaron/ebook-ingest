@@ -86,6 +86,9 @@ export class EmbeddingGenerator {
           // Reduce and retry
           chars -= 1000;
           if (chars < MIN_CHARS) chars = MIN_CHARS;
+          console.warn(
+            `[EMBED] Chunk ${i + 1}/${chunks.length}: context length exceeded, retrying with ${chars} chars`,
+          );
         }
       }
 
