@@ -3,6 +3,7 @@ import path from 'node:path';
 import { ConceptNormalizer } from './concept-normalizer.js';
 import { ChapterAnalysis, ConceptEntry } from './llm-analyzer.js';
 import { RegistryManager } from './registry-manager.js';
+import type { WikiNoteType, WikiStandardConfig } from './config.js';
 
 /**
  * Write Obsidian-compatible markdown files for the knowledge base.
@@ -15,6 +16,7 @@ export class ObsidianWriter {
   private conceptsDir: string;
   private mocDir: string;
   private conceptRegistryPath: string;
+  private wikiStandard: WikiStandardConfig;
 
   constructor(
     vault: string,
@@ -23,6 +25,7 @@ export class ObsidianWriter {
     conceptsDir: string,
     mocDir: string,
     conceptRegistryPath: string,
+    wikiStandard: WikiStandardConfig,
   ) {
     this.vault = vault;
     this.booksDir = booksDir;
@@ -30,10 +33,11 @@ export class ObsidianWriter {
     this.conceptsDir = conceptsDir;
     this.mocDir = mocDir;
     this.conceptRegistryPath = conceptRegistryPath;
+    this.wikiStandard = wikiStandard;
   }
 
   /**
-   * Write a source block markdown file (new method).
+   * Write a source block markdown file.
    */
   async writeSourceBlock(
     sourceName: string,
@@ -61,12 +65,24 @@ export class ObsidianWriter {
 
     const links = concepts.map(c => `- [[${c}]]`).join('\n');
 
-    const md = `---
-type: source_block
-source: ${sourceName}
-source_type: ${sourceType}
-project: ${project}
----
+    const wikiType: WikiNoteType =
+      (this.wikiStandard.blockTypeMapping[sourceType] as WikiNoteType) ?? 'book';
+    const domain = project || this.wikiStandard.defaultDomain;
+    const today = new Date().toISOString().slice(0, 10);
+
+    const frontmatter = ObsidianWriter.buildFrontmatter({
+      title: blockData.title,
+      wikiType,
+      domain,
+      owner: this.wikiStandard.defaultOwner,
+      created: today,
+      updated: today,
+      tags: [sourceType, domain],
+      aliases: [],
+      extra: { source: sourceName, source_type: sourceType, project },
+    });
+
+    const md = `${frontmatter}
 
 # ${blockData.title}
 
@@ -84,7 +100,7 @@ ${links}
   }
 
   /**
-   * Write a source index with block listing and concept links (new method).
+   * Write a source index with block listing and concept links.
    */
   async writeSourceIndex(
     sourceName: string,
@@ -105,10 +121,22 @@ ${links}
       .map(c => `- [[${c}]]`)
       .join('\n');
 
-    const md = `---
-type: source
-source_type: ${sourceType}
----
+    const today = new Date().toISOString().slice(0, 10);
+    const domain = this.wikiStandard.defaultDomain;
+
+    const frontmatter = ObsidianWriter.buildFrontmatter({
+      title: sourceName,
+      wikiType: 'index',
+      domain,
+      owner: this.wikiStandard.defaultOwner,
+      created: today,
+      updated: today,
+      tags: [sourceType, domain],
+      aliases: [],
+      extra: { source_type: sourceType },
+    });
+
+    const md = `${frontmatter}
 
 # ${sourceName}
 
@@ -138,7 +166,11 @@ ${conceptLinks}
   /**
    * Update or create a concept note.
    */
-  async updateConcept(conceptName: string, description: string, sourceName: string): Promise<void> {
+  async updateConcept(
+    conceptName: string,
+    description: string,
+    sourceName: string,
+  ): Promise<void> {
     const conceptsDirPath = path.resolve(this.vault, this.conceptsDir);
     await fs.mkdir(conceptsDirPath, { recursive: true });
 
@@ -147,6 +179,20 @@ ${conceptLinks}
     const sources = new Set<string>();
     sources.add(sourceName);
 
+    // Collect existing sources + aliases from registry
+    let aliases: string[] = [];
+    try {
+      const registry = await RegistryManager.load<
+        Record<string, { sources?: string[]; aliases?: string[] }>
+      >(this.conceptRegistryPath);
+      const entry = registry[conceptName];
+      if (entry) {
+        if (entry.aliases) aliases = entry.aliases;
+        if (entry.sources) entry.sources.forEach(s => sources.add(s));
+      }
+    } catch { /* registry may not exist yet */ }
+
+    // Also collect from existing file content
     try {
       const existingContent = await fs.readFile(filePath, 'utf-8');
       const matches = existingContent.matchAll(/\[\[(.*?)\]\]/g);
@@ -154,7 +200,7 @@ ${conceptLinks}
         sources.add(m[1]);
       }
     } catch {
-      // File doesn't exist yet — that's fine
+      // File doesn't exist yet — fine
     }
 
     const sourcesSection = [...sources]
@@ -162,9 +208,22 @@ ${conceptLinks}
       .map(s => `- [[${s}]]`)
       .join('\n');
 
-    const md = `---
-type: concept
----
+    const sourceWikilinks = [...sources].map(s => `[[${s}]]`);
+    const today = new Date().toISOString().slice(0, 10);
+
+    const frontmatter = ObsidianWriter.buildFrontmatter({
+      title: conceptName.replace(/_/g, ' '),
+      wikiType: 'concept',
+      domain: this.wikiStandard.defaultDomain,
+      owner: this.wikiStandard.defaultOwner,
+      created: today,
+      updated: today,
+      tags: ['concept', this.wikiStandard.defaultDomain],
+      aliases,
+      sources: sourceWikilinks,
+    });
+
+    const md = `${frontmatter}
 
 # ${conceptName}
 
@@ -244,6 +303,102 @@ ${links}
 
     const filePath = path.resolve(mocDirPath, 'Software Engineering.md');
     await fs.writeFile(filePath, md, 'utf-8');
+  }
+
+  // ── WIKI_CONTENT_STANDARD.md frontmatter builder ─────────────────────
+
+  /**
+   * Input for building a standard-compliant frontmatter block.
+   */
+  static buildFrontmatter(input: {
+    title: string;
+    wikiType: WikiNoteType;
+    domain: string;
+    owner: string;
+    created: string;
+    updated: string;
+    tags: string[];
+    aliases: string[];
+    sources?: string[];
+    related?: string[];
+    extra?: Record<string, string>;
+  }): string {
+    const q = ObsidianWriter.yamlQuote;
+
+    const lines = [
+      '---',
+      `title: ${q(input.title)}`,
+      `type: ${input.wikiType}`,
+      `domain: ${q(input.domain)}`,
+      `owner: ${q(input.owner)}`,
+      `created: "${input.created}"`,
+      `updated: "${input.updated}"`,
+      `updated_at: "${input.updated}"`,
+    ];
+
+    // tags: YAML flow array if short, block array if many
+    if (input.tags.length === 1) {
+      lines.push(`tags: [${input.tags[0]}]`);
+    } else {
+      lines.push('tags:');
+      for (const t of input.tags) {
+        lines.push(`  - ${t}`);
+      }
+    }
+
+    // aliases
+    if (input.aliases.length === 0) {
+      lines.push('aliases: []');
+    } else {
+      lines.push('aliases:');
+      for (const a of input.aliases) {
+        lines.push(`  - ${q(a)}`);
+      }
+    }
+
+    // sources (optional)
+    if (input.sources && input.sources.length > 0) {
+      lines.push('sources:');
+      for (const s of input.sources) {
+        lines.push(`  - ${q(s)}`);
+      }
+    } else if (input.wikiType === 'concept') {
+      lines.push('sources: []');
+    }
+
+    // related (optional)
+    if (input.related && input.related.length > 0) {
+      lines.push('related:');
+      for (const r of input.related) {
+        lines.push(`  - ${q(r)}`);
+      }
+    }
+
+    // Extra fields (e.g. source, source_type, project)
+    if (input.extra) {
+      for (const [key, value] of Object.entries(input.extra)) {
+        if (key === 'project' && !value.startsWith('"')) {
+          lines.push(`${key}: ${q(value)}`);
+        } else {
+          lines.push(`${key}: ${q(value)}`);
+        }
+      }
+    }
+
+    lines.push('---');
+    return lines.join('\n');
+  }
+
+  /**
+   * Quote a YAML scalar value if it contains characters that
+   * would break the YAML parser (colon, hash, quotes, newlines)
+   * or if the value has leading/trailing whitespace.
+   */
+  private static yamlQuote(value: string): string {
+    if (/[:#\"'\n]/.test(value) || value !== value.trim()) {
+      return `"${value.replace(/"/g, '\\"')}"`;
+    }
+    return value;
   }
 
   // ── Image helpers ───────────────────────────────────────────────────

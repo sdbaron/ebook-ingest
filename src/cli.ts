@@ -3,6 +3,7 @@ import { UniversalExtractor } from './universal-extractor.js';
 import { ConceptMergeEngine } from './concept-merge-engine.js';
 import { WikiPipeline } from './pipeline.js';
 import { migrateCommand } from './migrate-vault.js';
+import { migrateWikiStandard } from './migrate-wiki-standard.js';
 import { VectorStore, buildDocId } from './vector-store.js';
 import { EmbeddingGenerator } from './embedding-generator.js';
 import { ChatEngine } from './chat-engine.js';
@@ -20,11 +21,13 @@ function printUsage(): void {
   console.error('  ebook-ingest ask <question> [--top-k <n>] [--style default|academic|concise] [--show-sources]');
   console.error('  ebook-ingest chat [--top-k <n>] [--style default|academic|concise]');
   console.error('  ebook-ingest generate-mocs [--clusters <n>]');
+  console.error('  ebook-ingest migrate-wiki-standard [--vault <path>] [--dry-run]');
   console.error('');
   console.error('Commands:');
-  console.error('  ingest (default)  Import a source into the vault');
-  console.error('  migrate           Migrate v2 vault (Book-Model) to v3 (Source-Model)');
-  console.error('  merge-concepts    Find and merge duplicate concepts');
+  console.error('  ingest (default)      Import a source into the vault');
+  console.error('  migrate               Migrate v2 vault (Book-Model) to v3 (Source-Model)');
+  console.error('  migrate-wiki-standard Add WIKI_CONTENT_STANDARD.md frontmatter to existing notes');
+  console.error('  merge-concepts        Find and merge duplicate concepts');
   console.error('  search            Semantic search over indexed vault content');
   console.error('  reindex           Regenerate embeddings for existing vault');
   console.error('  ask               Ask a question using RAG (single question)');
@@ -320,6 +323,21 @@ async function main(): Promise<void> {
       ...(migrateArgs.vault ? { vault: migrateArgs.vault } : {}),
     };
     await migrateCommand(config, migrateArgs.dryRun);
+    return;
+  }
+
+  if (args[0] === 'migrate-wiki-standard') {
+    let vault: string | undefined;
+    let dryRun = false;
+    for (let i = 1; i < args.length; i++) {
+      if (args[i] === '--vault' && i + 1 < args.length) vault = args[++i];
+      if (args[i] === '--dry-run') dryRun = true;
+    }
+    const config = {
+      ...loadConfig(),
+      ...(vault ? { vault } : {}),
+    };
+    await migrateWikiStandard(config, dryRun);
     return;
   }
 

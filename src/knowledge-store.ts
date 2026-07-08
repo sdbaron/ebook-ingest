@@ -10,6 +10,7 @@ export interface SourceEntry {
   source_type: 'epub' | 'pdf' | 'html' | 'url' | 'fb2';
   original_path: string;
   ingested_at: string;
+  updated_at: string;
 }
 
 export interface ConceptEntry {
@@ -47,11 +48,14 @@ export class KnowledgeStore {
     const sources = await RegistryManager.load<Record<string, SourceEntry>>(
       this.sourceRegistryPath,
     );
+    const now = new Date().toISOString();
+    const existing = sources[sourceName];
     sources[sourceName] = {
       project,
       source_type: sourceType,
       original_path: originalPath,
-      ingested_at: new Date().toISOString(),
+      ingested_at: existing?.ingested_at ?? now,
+      updated_at: now,
     };
     await RegistryManager.save(this.sourceRegistryPath, sources);
   }

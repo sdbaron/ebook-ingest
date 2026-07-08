@@ -2,6 +2,30 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 /**
+ * WIKI_CONTENT_STANDARD.md compliant note types.
+ */
+export type WikiNoteType =
+  | 'concept' | 'book' | 'author' | 'pattern'
+  | 'standard' | 'decision' | 'index';
+
+/**
+ * Configuration for WIKI_CONTENT_STANDARD.md compliance.
+ */
+export interface WikiStandardConfig {
+  /** Enable frontmatter compliance (default: true) */
+  enabled: boolean;
+  /** Owner abbreviation for all generated notes */
+  defaultOwner: string;
+  /** Fallback domain when project is not derivable */
+  defaultDomain: string;
+  /**
+   * Mapping SourceFormat → note type for source BLOCK notes.
+   * Source-index notes always use 'index', concepts always 'concept'.
+   */
+  blockTypeMapping: Record<string, WikiNoteType>;
+}
+
+/**
  * Configuration for the ebook-ingest pipeline.
  * All paths and defaults are centralized here.
  */
@@ -28,6 +52,8 @@ export interface EbookIngestConfig {
   attachmentsDir: string;
   /** Ollama model to use for LLM analysis */
   model: string;
+  /** WIKI_CONTENT_STANDARD compliance settings */
+  wikiStandard: WikiStandardConfig;
 }
 
 /**
@@ -47,6 +73,18 @@ export const defaultConfig: EbookIngestConfig = {
   sourceRegistry: "99_meta/sources_registry.json",
   attachmentsDir: "06_attachments",
   model: "llama3.2:latest",
+  wikiStandard: {
+    enabled: true,
+    defaultOwner: 'unassigned',
+    defaultDomain: 'general',
+    blockTypeMapping: {
+      epub: 'book',
+      fb2: 'book',
+      pdf: 'book',
+      html: 'pattern',
+      url: 'pattern',
+    },
+  },
 };
 
 /**

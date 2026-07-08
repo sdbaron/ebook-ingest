@@ -1,4 +1,7 @@
-export { defaultConfig, EbookIngestConfig, resolveVaultPath, loadConfig, findConfigFile, CONFIG_SEARCH_NAMES } from './config.js';
+export { defaultConfig, EbookIngestConfig, WikiNoteType, WikiStandardConfig, resolveVaultPath, loadConfig, findConfigFile, CONFIG_SEARCH_NAMES } from './config.js';
+export { toDateOnly, todayDateOnly } from './date-utils.js';
+export { SourceSlug } from './source-slug.js';
+export { FrontmatterValidator, FrontmatterValidationResult } from './frontmatter-validator.js';
 export { EpubExtractor } from './epub-extractor.js';
 export { PdfExtractor } from './pdf-extractor.js';
 export { HtmlExtractor } from './html-extractor.js';

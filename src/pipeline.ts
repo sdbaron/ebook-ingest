@@ -10,6 +10,7 @@ import { KnowledgeStore } from './knowledge-store.js';
 import { ObsidianWriter } from './obsidian-writer.js';
 import { EmbeddingGenerator } from './embedding-generator.js';
 import { VectorStore, buildDocId } from './vector-store.js';
+import { FrontmatterValidator } from './frontmatter-validator.js';
 
 /**
  * Main pipeline: Source → Preprocess → LLM analysis → Obsidian vault.
@@ -39,6 +40,7 @@ export class WikiPipeline {
       config.conceptsDir,
       config.mocDir,
       conceptRegPath,
+      config.wikiStandard,
     );
 
     this.knowledgeStore = new KnowledgeStore(conceptRegPath, sourceRegPath);
@@ -157,6 +159,45 @@ export class WikiPipeline {
     );
 
     await this.writer.writeSourceIndex(sourceName, blocks.length, allConcepts, extractionResult.format);
+
+    // Validate frontmatter against WIKI_CONTENT_STANDARD.md
+    if (this.config.wikiStandard.enabled) {
+      try {
+        const indexPath = path.resolve(
+          this.config.vault,
+          this.config.sourcesDir,
+          sourceName,
+          'index.md',
+        );
+        const content = await (
+          await import('node:fs/promises')
+        ).readFile(indexPath, 'utf-8');
+        const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+        if (fmMatch) {
+          // Quick parse: split into key: value pairs
+          const fm: Record<string, unknown> = {};
+          for (const line of fmMatch[1].split('\n')) {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx === -1) continue;
+            const key = line.slice(0, colonIdx).trim();
+            let value: unknown = line.slice(colonIdx + 1).trim();
+            if (typeof value === 'string') {
+              value = value.replace(/^["']|["']$/g, '');
+            }
+            fm[key] = value;
+          }
+          const result = FrontmatterValidator.validate(fm);
+          if (!result.valid) {
+            console.warn(
+              `[VALIDATE] Source index "${sourceName}" has frontmatter issues:` +
+              `\n  ${result.errors.join('\n  ')}`,
+            );
+          }
+        }
+      } catch {
+        // Best-effort — don't crash the pipeline
+      }
+    }
 
     // Extract and copy images from the source
     const attachmentsBase = path.resolve(
