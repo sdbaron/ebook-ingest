@@ -50,7 +50,7 @@ Maps of Content (MOCs).
 - **K-Means-Clustering** von Konzept-Embeddings
 - Automatische Cluster-Anzahl (Elbow-Methode) + Silhouette-Score
 - LLM-generierte Cluster-Labels
-- Automatisch generierte MOC-Dateien in `04_mocs/`
+- Automatisch generierte MOC-Dateien in `wiki/04_mocs/`
 
 ### 🔧 Utilities
 
@@ -92,15 +92,15 @@ Die Standardkonfiguration befindet sich in `src/config.ts`:
 
 | Option | Standardwert | Beschreibung |
 | --- | --- | --- |
-| `vault` | `/Users/sergeydaub/work/barmbini/ObsidianVault` | Root-Pfad des Obsidian-Vaults |
-| `sourcesDir` | `05_sources` | Verzeichnis für Source-Notizen |
-| `conceptsDir` | `02_concepts` | Verzeichnis für Konzeptnotizen |
-| `mocDir` | `04_mocs` | Verzeichnis für Maps of Content |
-| `metaDir` | `99_meta` | Verzeichnis für Metadaten/Registries |
-| `conceptRegistry` | `99_meta/concept_registry.json` | Pfad zur Konzept-Registry |
-| `sourceRegistry` | `99_meta/sources_registry.json` | Pfad zur Source-Registry |
+| `vault` | `/Users/sergeydaub/work/barmbini/ObsidianVault` | Root-Pfad des Obsidian-Vaults (`raw/` bleibt hier) |
+| `sourcesDir` | `wiki/05_sources` | Verzeichnis für Source-Notizen |
+| `conceptsDir` | `wiki/02_concepts` | Verzeichnis für Konzeptnotizen |
+| `mocDir` | `wiki/04_mocs` | Verzeichnis für Maps of Content |
+| `metaDir` | `wiki/99_meta` | Verzeichnis für Metadaten/Registries |
+| `conceptRegistry` | `wiki/99_meta/concept_registry.json` | Pfad zur Konzept-Registry |
+| `sourceRegistry` | `wiki/99_meta/sources_registry.json` | Pfad zur Source-Registry |
 | `model` | `llama3.2:latest` | Ollama-Modell für die LLM-Analyse |
-| `attachmentsDir` | `06_attachments` | Verzeichnis für extrahierte Bilder |
+| `attachmentsDir` | `wiki/06_attachments` | Verzeichnis für extrahierte Bilder |
 | `wikiStandard.enabled` | `true` | WIKI_CONTENT_STANDARD-Frontmatter aktiv |
 | `wikiStandard.defaultOwner` | `unassigned` | Owner-Kürzel für alle Notizen |
 | `wikiStandard.defaultDomain` | `general` | Fallback-Domain |
@@ -275,7 +275,7 @@ src/
 2. **Extraktion** – Die Quelle wird formatabhängig extrahiert (EPUB/PDF/HTML/URL).
 3. **Preprocessing** – Rohtext wird bereinigt (Header/Footer, Boilerplate, Kapitelerkennung, Qualitätsfilter).
 4. **LLM-Analyse** – Jeder Block wird an Ollama gesendet, das Titel, Zusammenfassung und Konzepte extrahiert.
-5. **Obsidian-Export** – Source-Blöcke und Konzeptnotizen werden als Markdown in `05_sources/` und `02_concepts/` geschrieben.
+5. **Obsidian-Export** – Source-Blöcke und Konzeptnotizen werden als Markdown in `wiki/05_sources/` und `wiki/02_concepts/` geschrieben.
 6. **Indizierung** – Source-Index und globaler MOC werden generiert.
 7. **Vektorisierung** – Embeddings werden via Ollama (`nomic-embed-text`) generiert und in ChromaDB gespeichert.
 8. **Registrierung** – Quellen und Konzepte werden in JSON-Registries mit Metadaten nachverfolgt.
