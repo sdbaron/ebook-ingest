@@ -63,15 +63,16 @@ export interface EbookIngestConfig {
  */
 export const defaultConfig: EbookIngestConfig = {
   vault: "/Users/sergeydaub/work/barmbini/ObsidianVault",
-  booksDir: "01_books",
-  sourcesDir: "05_sources",
-  conceptsDir: "02_concepts",
-  mocDir: "04_mocs",
-  metaDir: "99_meta",
-  conceptRegistry: "99_meta/concept_registry.json",
-  bookRegistry: "99_meta/books_registry.json",
-  sourceRegistry: "99_meta/sources_registry.json",
-  attachmentsDir: "06_attachments",
+  /** Generated notes live under wiki/ (raw/ stays at vault root). */
+  booksDir: "wiki/01_books",
+  sourcesDir: "wiki/05_sources",
+  conceptsDir: "wiki/02_concepts",
+  mocDir: "wiki/04_mocs",
+  metaDir: "wiki/99_meta",
+  conceptRegistry: "wiki/99_meta/concept_registry.json",
+  bookRegistry: "wiki/99_meta/books_registry.json",
+  sourceRegistry: "wiki/99_meta/sources_registry.json",
+  attachmentsDir: "wiki/06_attachments",
   model: "llama3.2:latest",
   wikiStandard: {
     enabled: true,
